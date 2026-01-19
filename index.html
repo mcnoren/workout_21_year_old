@@ -3,531 +3,590 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BaseLayer v4: Adaptive</title>
+    <title>BaseLayer v5: Pro</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
     <style>
         :root {
-            --bg: #0f172a; --card: #1e293b;
-            --text: #f8fafc; --text-light: #94a3b8;
-            --accent: #38bdf8; --accent-dim: rgba(56, 189, 248, 0.1);
-            --success: #22c55e; --danger: #ef4444; --warning: #f59e0b;
+            /* v5 Dark Theme: "Midnight & Neon" */
+            --bg: #0b1120; --card: #1e293b;
+            --text: #f1f5f9; --text-dim: #94a3b8;
+            --accent: #3b82f6; --accent-glow: rgba(59,130,246,0.3);
+            --success: #10b981; --danger: #ef4444; --warn: #f59e0b;
             --border: #334155;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 90px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 95px; }
         .container { max-width: 600px; margin: 0 auto; padding: 20px; }
         .hidden { display: none !important; }
 
         /* TYPOGRAPHY */
         h1 { font-size: 1.8rem; font-weight: 800; margin: 0 0 5px 0; letter-spacing: -0.5px; }
-        h2 { font-size: 1.3rem; font-weight: 700; margin: 20px 0 10px 0; color: var(--text); }
-        small { color: var(--text-light); font-size: 0.85rem; }
+        h2 { font-size: 1.2rem; font-weight: 700; margin: 20px 0 10px 0; }
+        p { line-height: 1.5; color: var(--text-dim); font-size: 0.95rem; margin-top: 5px; }
+        small { font-size: 0.8rem; color: var(--text-dim); }
 
-        /* UI ELEMENTS */
-        .card { background: var(--card); border-radius: 16px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2); border: 1px solid var(--border); margin-bottom: 20px; }
+        /* UI COMPONENTS */
+        .card { background: var(--card); border-radius: 16px; padding: 20px; border: 1px solid var(--border); margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); }
         
-        .btn { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: 700; font-size: 1rem; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 10px; transition: 0.2s; }
-        .btn-primary { background: var(--text); color: var(--bg); }
-        .btn-accent { background: var(--accent); color: #0f172a; }
-        .btn-outline { background: transparent; border: 2px solid var(--border); color: var(--text); }
+        .btn { width: 100%; padding: 14px; border-radius: 10px; border: none; font-weight: 700; font-size: 1rem; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 10px; transition: 0.2s; }
+        .btn-primary { background: var(--accent); color: white; box-shadow: 0 0 15px var(--accent-glow); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
         .btn:active { transform: scale(0.98); }
 
-        .std-input { width: 100%; padding: 15px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; font-size: 1rem; color: white; margin-bottom: 15px; }
+        .std-input { width: 100%; padding: 14px; background: #0f172a; border: 1px solid var(--border); border-radius: 10px; font-size: 1rem; color: white; margin-bottom: 12px; }
         .std-input:focus { outline: none; border-color: var(--accent); }
 
-        /* METRICS GRID */
-        .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .metric-box { background: var(--card); border: 1px solid var(--border); padding: 15px; border-radius: 12px; text-align: center; }
-        .metric-val { font-size: 1.4rem; font-weight: 800; color: var(--text); }
-        .metric-lbl { font-size: 0.75rem; text-transform: uppercase; color: var(--text-light); font-weight: bold; letter-spacing: 0.5px; }
+        /* DAILY GOALS CHECKLIST */
+        .goal-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; background: rgba(255,255,255,0.02); border-radius: 12px; margin-bottom: 8px; border: 1px solid transparent; transition: 0.2s; }
+        .goal-row.done { border-color: var(--success); background: rgba(16, 185, 129, 0.05); }
+        .checkbox { width: 24px; height: 24px; border-radius: 6px; border: 2px solid var(--text-dim); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .done .checkbox { background: var(--success); border-color: var(--success); color: white; }
 
-        /* HABIT ROW */
-        .habit-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
-        .habit-row:last-child { border-bottom: none; }
-        .habit-check { width: 24px; height: 24px; border-radius: 6px; border: 2px solid var(--text-light); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .habit-check.checked { background: var(--success); border-color: var(--success); color: white; }
+        /* LIBRARY EXPANSION */
+        .lib-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 15px; overflow: hidden; }
+        .lib-head { padding: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .lib-body { padding: 0 15px 15px 15px; display: none; border-top: 1px solid var(--border); padding-top: 15px; }
+        .lib-tag { font-size: 0.7rem; text-transform: uppercase; font-weight: bold; padding: 3px 8px; border-radius: 4px; background: rgba(255,255,255,0.1); margin-bottom: 5px; display: inline-block; }
 
-        /* ACTIVE WORKOUT */
-        #view-active { position: fixed; inset: 0; background: var(--bg); z-index: 100; overflow-y: auto; }
-        .active-content { padding: 20px; min-height: 100vh; display: flex; flex-direction: column; }
-        .timer-display { font-size: 5rem; font-weight: 900; text-align: center; margin: 30px 0; font-variant-numeric: tabular-nums; }
+        /* FLOATING ACTION BUTTON (Log Anything) */
+        .fab { position: fixed; bottom: 100px; right: 20px; width: 55px; height: 55px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; box-shadow: 0 4px 15px var(--accent-glow); z-index: 90; cursor: pointer; }
 
         /* NAV */
-        .nav { position: fixed; bottom: 0; width: 100%; height: 85px; background: var(--card); border-top: 1px solid var(--border); display: flex; justify-content: space-around; z-index: 50; padding-bottom: 15px; }
-        .nav-btn { flex: 1; border: none; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-light); font-size: 0.7rem; font-weight: 600; gap: 5px; }
+        .nav { position: fixed; bottom: 0; width: 100%; height: 85px; background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(10px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; z-index: 50; padding-bottom: 15px; }
+        .nav-btn { flex: 1; border: none; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-dim); font-size: 0.7rem; font-weight: 600; gap: 5px; }
         .nav-btn.active { color: var(--accent); }
         .nav-btn i { font-size: 1.4rem; }
 
-        /* ONBOARDING OVERLAY (Strict) */
-        #view-onboarding { position: fixed; inset: 0; z-index: 200; background: var(--bg); padding: 30px; display: flex; flex-direction: column; justify-content: center; }
+        /* MODALS */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .modal-card { background: var(--card); width: 100%; max-width: 400px; border-radius: 16px; padding: 25px; border: 1px solid var(--border); position: relative; }
+        .close-btn { position: absolute; top: 15px; right: 15px; font-size: 1.2rem; color: var(--text-dim); cursor: pointer; }
+
+        /* CHART CONTAINER */
+        .chart-container { position: relative; height: 250px; width: 100%; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
-    <div id="view-onboarding" class="hidden">
-        <h1 style="text-align:center; color:var(--accent); font-size:2.5rem;">BASE<span style="color:white">LAYER</span></h1>
-        <p style="text-align:center; color:var(--text-light); margin-bottom:40px;">Setup your adaptive profile.</p>
-        
-        <label style="font-weight:bold; font-size:0.9rem;">First Name</label>
-        <input type="text" id="inp-name" class="std-input" placeholder="Name">
-        
-        <label style="font-weight:bold; font-size:0.9rem;">Current Weight (lbs)</label>
-        <input type="number" id="inp-weight" class="std-input" placeholder="e.g., 185">
-        <p style="font-size:0.8rem; color:var(--text-light); margin-top:-10px; margin-bottom:15px;">Required for calorie algorithm.</p>
-        
-        <label style="font-weight:bold; font-size:0.9rem;">Daily Step Goal</label>
-        <input type="number" id="inp-steps" class="std-input" value="7000">
-        
-        <button class="btn btn-accent" onclick="finishOnboarding()">Save & Start</button>
-        <p id="onboard-error" style="color:var(--danger); text-align:center; display:none;">All fields are required.</p>
+    <div id="view-onboarding" class="modal" style="z-index:200;">
+        <div class="modal-card">
+            <h1 style="color:var(--accent); text-align:center;">BaseLayer Pro</h1>
+            <p style="text-align:center; margin-bottom:20px;">Initialize your health profile.</p>
+            <label><b>First Name</b></label>
+            <input type="text" id="inp-name" class="std-input">
+            <label><b>Current Weight (lbs)</b></label>
+            <input type="number" id="inp-weight" class="std-input">
+            <button class="btn btn-primary" onclick="finishOnboarding()">Start Dashboard</button>
+        </div>
     </div>
 
     <div id="view-dashboard" class="container hidden">
-        <div class="header">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
             <div>
                 <h1 id="dash-greeting">Hello</h1>
                 <small id="dash-date">Date</small>
             </div>
-            <div onclick="logWeightModal()" style="background:var(--card); border:1px solid var(--border); padding:8px 15px; border-radius:20px; font-weight:bold; font-size:0.9rem;">
-                <i class="fas fa-weight-scale"></i> <span id="dash-weight-val">--</span>
+            <div style="text-align:right;">
+                <div style="font-weight:bold; font-size:1.2rem; color:var(--accent);" id="dash-weight-display">-- lbs</div>
+                <small>Current</small>
             </div>
         </div>
 
-        <div class="metric-grid">
-            <div class="metric-box">
-                <div class="metric-val" id="dash-cal">0</div>
-                <div class="metric-lbl">Est. Cals Burned</div>
+        <div id="alert-box" class="card hidden" style="border-color:var(--warn); background:rgba(245, 158, 11, 0.05);">
+            <div style="display:flex; gap:10px; align-items:center; color:var(--warn);">
+                <i class="fas fa-exclamation-triangle"></i>
+                <b>Missing Data</b>
             </div>
-            <div class="metric-box">
-                <div class="metric-val" id="dash-streak">0</div>
-                <div class="metric-lbl">Day Streak</div>
+            <p style="margin:5px 0 10px 0; font-size:0.9rem;">You haven't logged steps for <span id="alert-date">yesterday</span>.</p>
+            <button class="btn btn-outline" style="padding:8px; font-size:0.9rem;" onclick="openLogModal('Steps', true)">Log Steps Now</button>
+        </div>
+
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                <h2 style="margin:0;">Daily Goals</h2>
+                <small id="step-goal-display">Target: 7000 Steps</small>
+            </div>
+            
+            <div class="goal-row" id="row-steps" onclick="openLogModal('Steps')">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="checkbox" id="chk-steps"><i class="fas fa-check"></i></div>
+                    <div>
+                        <div style="font-weight:600;">Apple Watch Steps</div>
+                        <small id="today-step-count">Tap to sync from Watch</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="goal-row" id="row-water" onclick="toggleHabit('water')">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="checkbox" id="chk-water"><i class="fas fa-check"></i></div>
+                    <div>
+                        <div style="font-weight:600;">Hydration</div>
+                        <small>3 Liters</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="goal-row" id="row-sleep" onclick="toggleHabit('sleep')">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="checkbox" id="chk-sleep"><i class="fas fa-check"></i></div>
+                    <div>
+                        <div style="font-weight:600;">Recovery Sleep</div>
+                        <small>7+ Hours</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="today-routine-card"></div>
+    </div>
+
+    <div id="view-stats" class="container hidden">
+        <h1>Progress Hub</h1>
+        
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h2 style="margin:0;">Weight Trend</h2>
+                <button class="btn btn-outline" style="width:auto; padding:5px 10px; font-size:0.8rem;" onclick="openLogModal('Weight')">+ Log</button>
+            </div>
+            <div class="chart-container">
+                <canvas id="weightChart"></canvas>
             </div>
         </div>
 
         <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <h2 style="margin:0; font-size:1.1rem;">Daily Goals</h2>
-                <small id="lbl-steps">Target: 7000</small>
-            </div>
-            
-            <div class="habit-row" onclick="toggleHabit('walk')">
-                <div>Walk / Steps</div>
-                <div class="habit-check" id="chk-walk"><i class="fas fa-check"></i></div>
-            </div>
-            <div class="habit-row" onclick="toggleHabit('water')">
-                <div>Hydration (3L)</div>
-                <div class="habit-check" id="chk-water"><i class="fas fa-check"></i></div>
-            </div>
-            <div class="habit-row" onclick="toggleHabit('sleep')">
-                <div>7+ Hours Sleep</div>
-                <div class="habit-check" id="chk-sleep"><i class="fas fa-check"></i></div>
+            <h2 style="margin-top:0;">Step Consistency</h2>
+            <div class="chart-container">
+                <canvas id="stepChart"></canvas>
             </div>
         </div>
-
-        <div class="card" id="today-card">
-            </div>
-
-        <h2 style="font-size:1rem;">Quick Log</h2>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <button class="btn btn-outline" onclick="quickLog('Walk', 30, 3.5)">
-                <i class="fas fa-walking"></i> Walk 30m
-            </button>
-            <button class="btn btn-outline" onclick="quickLog('Sports', 60, 7.0)">
-                <i class="fas fa-basketball-ball"></i> Sports 60m
-            </button>
-        </div>
-    </div>
-
-    <div id="view-schedule" class="container hidden">
-        <div class="header"><h1>Schedule</h1></div>
-        <div class="card" id="week-list"></div>
     </div>
 
     <div id="view-library" class="container hidden">
-        <div class="header"><h1>Library</h1></div>
-        <input type="text" class="std-input" placeholder="Search exercises..." onkeyup="filterLib(this.value)">
-        <div id="lib-list" style="padding-bottom:100px;"></div>
+        <h1>Knowledge Base</h1>
+        <input type="text" class="std-input" placeholder="Search exercises..." onkeyup="renderLibrary(this.value)">
+        <div id="lib-list" style="padding-bottom:80px;"></div>
     </div>
 
-    <div id="view-active" class="hidden">
-        <div class="active-content">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <button class="btn btn-outline" style="width:auto; border:none; color:var(--text-light);" onclick="quitWorkout()">Quit</button>
-                <div style="font-weight:bold; color:var(--accent);" id="act-progress">1 / 5</div>
-            </div>
+    <div id="modal-log" class="modal hidden">
+        <div class="modal-card">
+            <i class="fas fa-times close-btn" onclick="closeModal()"></i>
+            <h2 id="log-title" style="margin-top:0;">Log Activity</h2>
             
-            <div style="flex:1; display:flex; flex-direction:column; justify-content:center; text-align:center;">
-                <span id="act-cat" style="text-transform:uppercase; letter-spacing:2px; font-size:0.8rem; color:var(--text-light);">Category</span>
-                <h1 id="act-name" style="font-size:2.5rem; margin:10px 0;">Name</h1>
-                <div id="act-viz"></div>
-                <p id="act-cue" style="color:var(--accent); background:var(--accent-dim); padding:15px; border-radius:10px; margin-top:20px;"></p>
-            </div>
+            <label><b>Date</b></label>
+            <input type="date" id="log-date" class="std-input">
 
-            <button class="btn btn-accent" id="act-btn" style="padding:20px; font-size:1.2rem;" onclick="nextExercise()">Start</button>
+            <div id="log-inputs">
+                </div>
+            
+            <button class="btn btn-primary" onclick="saveLog()">Save Entry</button>
         </div>
     </div>
 
+    <div class="fab" onclick="openLogModal('Generic')"><i class="fas fa-plus"></i></div>
+
     <div class="nav hidden" id="main-nav">
-        <button class="nav-btn active" onclick="switchTab('dashboard')"><i class="fas fa-home"></i><span>Today</span></button>
-        <button class="nav-btn" onclick="switchTab('schedule')"><i class="fas fa-calendar"></i><span>Plan</span></button>
-        <button class="nav-btn" onclick="switchTab('library')"><i class="fas fa-dumbbell"></i><span>Library</span></button>
+        <button class="nav-btn active" onclick="switchTab('dashboard')"><i class="fas fa-home"></i>Today</button>
+        <button class="nav-btn" onclick="switchTab('stats')"><i class="fas fa-chart-line"></i>Stats</button>
+        <button class="nav-btn" onclick="switchTab('library')"><i class="fas fa-dumbbell"></i>Guide</button>
     </div>
 
     <script>
-        /* --- 1. CONFIG & DATA --- */
-        const STORAGE_KEY = 'BaseLayer_Pro_Data'; // Permanent storage key
-
+        /* --- 1. RICH DATA LIBRARY --- */
         const library = {
-            "Air Squats": { cat: "Legs", desc: "Chest up, hips back. Deep squat.", type: "reps", val: 15, met: 5.0 },
-            "Push-ups": { cat: "Upper", desc: "Core tight. Nose to floor.", type: "reps", val: 12, met: 3.8 },
-            "Plank Taps": { cat: "Core", desc: "High plank. Tap opposite shoulder.", type: "reps", val: 20, met: 3.5 },
-            "Glute Bridges": { cat: "Glutes", desc: "Squeeze glutes at top for 2s.", type: "reps", val: 15, met: 3.0 },
-            "Rev Lunges": { cat: "Legs", desc: "Step back, drop knee gently.", type: "reps", val: 12, met: 4.5 },
-            "Mtn Climbers": { cat: "Cardio", desc: "Fast pace knees to chest.", type: "time", val: 30, met: 8.0 },
-            "Jumping Jacks": { cat: "Cardio", desc: "Full arm extension.", type: "time", val: 45, met: 8.0 },
-            "Pigeon Pose": { cat: "Flexibility", desc: "Deep hip stretch. Breathe.", type: "time", val: 45, met: 2.0 },
-            "Cat-Cow": { cat: "Mobility", desc: "Segmental spine movement.", type: "time", val: 60, met: 2.0 },
-            "Dead Bug": { cat: "Core", desc: "Lower opposite arm/leg slowly.", type: "reps", val: 12, met: 3.0 },
-            "Downward Dog": { cat: "Flexibility", desc: "Hips high, heels down.", type: "time", val: 45, met: 2.5 }
+            "Air Squats": { 
+                cat: "Legs", 
+                desc: "The fundamental human movement pattern for lower body strength.",
+                how: "1. Stand with feet shoulder-width, toes slightly turned out (15-30 degrees).\n2. Initiate movement by sending hips BACK, then bending knees.\n3. Keep chest proud and heels glued to the floor.\n4. Lower until hip crease is below knee (parallel).\n5. Drive up explosively.",
+                why: "Strengthens quads, glutes, and core. Improves hip mobility essential for aging gracefully." 
+            },
+            "Push-ups": { 
+                cat: "Upper", 
+                desc: "A total body pushing movement that targets chest, shoulders, and core.",
+                how: "1. Start in a high plank, hands directly under shoulders.\n2. Squeeze glutes and bracing core (no sagging hips).\n3. Lower body until chest touches floor (or close to it).\n4. Elbows should point back at 45 degrees, not flared out.",
+                why: "Builds upper body pushing strength and teaches core rigidity." 
+            },
+            "Glute Bridges": { 
+                cat: "Glutes", 
+                desc: "An isolation exercise to wake up the posterior chain.",
+                how: "1. Lie on back, knees bent, feet flat on floor.\n2. Press heels into the ground to lift hips towards ceiling.\n3. At the top, squeeze glutes hard for 2 seconds.\n4. Ensure movement comes from hips, not lower back hyperextension.",
+                why: "Counteracts the negative effects of sitting. Protects the lower back from injury." 
+            },
+            "Plank Shoulder Taps": { 
+                cat: "Core", 
+                desc: "Anti-rotation core stability exercise.",
+                how: "1. Assume a wide-stance push-up position.\n2. Without moving your hips, lift right hand to tap left shoulder.\n3. Place hand back down and switch.\n4. Imagine a glass of water on your back—don't spill it.",
+                why: "Trains the core to resist movement, which is its primary function in daily life." 
+            },
+            "Walking": { 
+                cat: "Cardio", 
+                desc: "The most underrated fat loss tool.",
+                how: "Keep a brisk pace where you can talk but would rather not. Aim for continuous movement.",
+                why: "Increases NEAT (Non-Exercise Activity Thermogenesis). Low stress, high calorie burn over time." 
+            }
         };
 
-        const routines = {
-            'Strength A': { ex: ["Air Squats", "Push-ups", "Rev Lunges", "Plank Taps"], met: 5.0 },
-            'Strength B': { ex: ["Rev Lunges", "Glute Bridges", "Push-ups", "Dead Bug"], met: 5.0 },
-            'Cardio': { ex: ["Jumping Jacks", "Mtn Climbers", "Air Squats", "Jumping Jacks"], met: 8.0 },
-            'Mobility': { ex: ["Cat-Cow", "Downward Dog", "Pigeon Pose", "Dead Bug"], met: 2.5 }
-        };
-
-        /* --- 2. STATE MANAGEMENT --- */
+        /* --- 2. STATE --- */
         let appState = {
             user: { name: "", stepGoal: 7000 },
-            weightHistory: [], // [{date, lbs}]
-            logs: [], // [{date, type, cals, duration}]
-            weekPlan: [],
-            habits: { date: null, walk: false, water: false, sleep: false },
+            logs: [], // { date: "YYYY-MM-DD", type: "Weight"|"Steps"|"Workout", val: num, note: str }
+            habits: {}, // { "YYYY-MM-DD": { water: bool, sleep: bool } }
             onboarded: false
         };
 
-        /* --- 3. INIT & LOAD --- */
+        /* --- 3. INIT --- */
         window.onload = () => {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if(saved) {
-                // Merge loaded data with structure to prevent crash on updates
-                const loaded = JSON.parse(saved);
-                appState = { ...appState, ...loaded }; 
-                
-                // Migrations if needed (e.g., if weight was just a number before)
-                if(loaded.user && loaded.user.weight && appState.weightHistory.length === 0) {
-                    appState.weightHistory.push({date: new Date().toISOString(), lbs: loaded.user.weight});
-                }
-            }
-
-            // Daily Habit Reset
-            const today = new Date().toISOString().split('T')[0];
-            if(appState.habits.date !== today) {
-                appState.habits = { date: today, walk: false, water: false, sleep: false };
-            }
+            const saved = localStorage.getItem('BaseLayer_v5');
+            if(saved) appState = JSON.parse(saved);
 
             if(!appState.onboarded) {
                 document.getElementById('view-onboarding').classList.remove('hidden');
-                document.getElementById('main-nav').classList.add('hidden');
             } else {
                 initApp();
             }
         };
 
-        function save() { 
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); 
-        }
+        function save() { localStorage.setItem('BaseLayer_v5', JSON.stringify(appState)); }
 
-        /* --- 4. ONBOARDING (STRICT) --- */
         function finishOnboarding() {
             const n = document.getElementById('inp-name').value;
             const w = document.getElementById('inp-weight').value;
-            const s = document.getElementById('inp-steps').value;
-
-            if(!n || !w || !s) {
-                document.getElementById('onboard-error').style.display = 'block';
-                return;
-            }
-
+            if(!n || !w) return alert("Required");
+            
             appState.user.name = n;
-            appState.user.stepGoal = parseInt(s);
-            appState.weightHistory.push({ date: new Date().toISOString(), lbs: parseFloat(w) });
+            appState.logs.push({ date: new Date().toISOString().split('T')[0], type: 'Weight', val: parseFloat(w) });
             appState.onboarded = true;
-            
-            generateWeek();
             save();
-            
             document.getElementById('view-onboarding').classList.add('hidden');
             initApp();
         }
 
-        /* --- 5. CORE APP LOGIC --- */
         function initApp() {
             document.getElementById('main-nav').classList.remove('hidden');
             document.getElementById('view-dashboard').classList.remove('hidden');
-            
-            // Header Info
             document.getElementById('dash-greeting').innerText = `Hi, ${appState.user.name}`;
-            document.getElementById('dash-date').innerText = new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+            document.getElementById('dash-date').innerText = new Date().toLocaleDateString('en-US', { weekday:'long', month:'short', day:'numeric'});
             
-            // Current Weight
-            const lastWeight = appState.weightHistory[appState.weightHistory.length-1].lbs;
-            document.getElementById('dash-weight-val').innerText = lastWeight + " lbs";
-            document.getElementById('lbl-steps').innerText = `Goal: ${appState.user.stepGoal}`;
+            // Stats
+            const weights = appState.logs.filter(l => l.type === 'Weight').sort((a,b) => new Date(a.date) - new Date(b.date));
+            const curWeight = weights.length ? weights[weights.length-1].val : "--";
+            document.getElementById('dash-weight-display').innerText = curWeight + " lbs";
+            document.getElementById('step-goal-display').innerText = `Goal: ${appState.user.stepGoal}`;
 
-            // Calc Calories Today
-            const todayStr = new Date().toISOString().split('T')[0];
-            const todayLogs = appState.logs.filter(l => l.date.startsWith(todayStr));
-            const totalCals = todayLogs.reduce((acc, cur) => acc + (cur.cals || 0), 0);
-            document.getElementById('dash-cal').innerText = Math.round(totalCals);
-            document.getElementById('dash-streak').innerText = calculateStreak();
-
+            checkMissingSteps();
             renderHabits();
-            renderDashboard();
-            renderSchedule();
+            renderRoutine();
+            renderCharts();
             renderLibrary();
         }
 
-        function calculateStreak() {
-            // Simple logic: consecutive days with a log
-            // For v4, let's just return logs.length for simplicity or add complex logic later
-            return appState.logs.length; 
-        }
+        /* --- 4. LOGIC ENGINE --- */
+        function getToday() { return new Date().toISOString().split('T')[0]; }
 
-        function getCurrentWeightKg() {
-            const last = appState.weightHistory[appState.weightHistory.length-1].lbs;
-            return last * 0.453592;
-        }
+        function checkMissingSteps() {
+            const today = getToday();
+            const yest = new Date(); yest.setDate(yest.getDate() - 1);
+            const yestStr = yest.toISOString().split('T')[0];
 
-        function calculateCalories(met, mins) {
-            // Formula: Calories = (MET * 3.5 * weightInKg) / 200 * durationInMins
-            const kg = getCurrentWeightKg();
-            return (met * 3.5 * kg / 200) * mins;
-        }
-
-        function logWeightModal() {
-            const w = prompt("Enter new weight (lbs):", appState.weightHistory[appState.weightHistory.length-1].lbs);
-            if(w) {
-                appState.weightHistory.push({ date: new Date().toISOString(), lbs: parseFloat(w) });
-                save();
-                initApp();
-            }
-        }
-
-        /* --- 6. ROUTINE GENERATOR --- */
-        function generateWeek() {
-            const plan = [];
-            const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-            const today = new Date();
-            
-            // A/B Split + Rest Logic
-            for(let i=0; i<7; i++) {
-                let d = new Date();
-                d.setDate(today.getDate() + i);
-                let dayNum = d.getDay();
-                let rKey = null;
-
-                // Simple Cycle
-                if(dayNum === 1) rKey = 'Strength A';
-                else if(dayNum === 2) rKey = 'Cardio';
-                else if(dayNum === 3) rKey = 'Mobility';
-                else if(dayNum === 4) rKey = 'Strength B';
-                else if(dayNum === 5) rKey = 'Cardio';
-                else if(dayNum === 6) rKey = 'Mobility';
-                // Sun (0) = Rest
-
-                plan.push({
-                    date: d.toISOString().split('T')[0],
-                    dayName: days[dayNum],
-                    routineKey: rKey,
-                    completed: false
-                });
-            }
-            appState.weekPlan = plan;
-        }
-
-        /* --- 7. UI RENDERERS --- */
-        function renderHabits() {
-            const h = appState.habits;
-            document.getElementById('chk-walk').className = `habit-check ${h.walk?'checked':''}`;
-            document.getElementById('chk-water').className = `habit-check ${h.water?'checked':''}`;
-            document.getElementById('chk-sleep').className = `habit-check ${h.sleep?'checked':''}`;
-        }
-        
-        function toggleHabit(k) {
-            appState.habits[k] = !appState.habits[k];
-            renderHabits();
-            save();
-        }
-
-        function renderDashboard() {
-            const todayStr = new Date().toISOString().split('T')[0];
-            const task = appState.weekPlan.find(d => d.date === todayStr);
-            const container = document.getElementById('today-card');
-            
-            if(!task || !task.routineKey) {
-                container.innerHTML = `<h2 style="margin:0; color:var(--success)">Active Recovery</h2><p>Rest day. Hit your step goal.</p>`;
-            } else if(task.completed) {
-                container.innerHTML = `<h2 style="margin:0; color:var(--success)">Complete!</h2><p>Great work today.</p>`;
+            // Do we have steps for yesterday?
+            const hasYest = appState.logs.find(l => l.type === 'Steps' && l.date === yestStr);
+            if(!hasYest) {
+                document.getElementById('alert-box').classList.remove('hidden');
+                document.getElementById('alert-date').innerText = yestStr;
             } else {
-                const r = routines[task.routineKey];
+                document.getElementById('alert-box').classList.add('hidden');
+            }
+
+            // Do we have steps for today?
+            const hasToday = appState.logs.find(l => l.type === 'Steps' && l.date === today);
+            const stepRow = document.getElementById('row-steps');
+            const stepChk = document.getElementById('chk-steps');
+            
+            if(hasToday) {
+                stepRow.classList.add('done');
+                stepChk.innerHTML = '<i class="fas fa-check"></i>';
+                document.getElementById('today-step-count').innerText = `${hasToday.val} Steps Synced`;
+            } else {
+                stepRow.classList.remove('done');
+                stepChk.innerHTML = ''; // Empty box
+                document.getElementById('today-step-count').innerText = "Tap to sync from Watch";
+            }
+        }
+
+        /* --- 5. LOGGING SYSTEM --- */
+        let currentLogType = "";
+
+        function openLogModal(type, isUrgent = false) {
+            currentLogType = type;
+            document.getElementById('modal-log').classList.remove('hidden');
+            document.getElementById('log-title').innerText = type === 'Generic' ? 'Log Activity' : `Log ${type}`;
+            
+            // Date handling
+            const dInput = document.getElementById('log-date');
+            if(isUrgent) {
+                const yest = new Date(); yest.setDate(yest.getDate() - 1);
+                dInput.value = yest.toISOString().split('T')[0];
+            } else {
+                dInput.value = getToday();
+            }
+
+            const container = document.getElementById('log-inputs');
+            container.innerHTML = "";
+
+            if(type === 'Weight') {
+                container.innerHTML = `<label>Weight (lbs)</label><input type="number" id="inp-val" class="std-input" placeholder="e.g. 185">`;
+            } else if (type === 'Steps') {
+                container.innerHTML = `<label>Step Count (from Watch)</label><input type="number" id="inp-val" class="std-input" placeholder="e.g. 8432">`;
+            } else if (type === 'Generic') {
                 container.innerHTML = `
-                    <h2 style="margin-top:0;">${task.routineKey}</h2>
-                    <p>${r.ex.length} Exercises • High Intensity</p>
-                    <button class="btn btn-accent" onclick="startWorkout('${task.routineKey}')">Start Workout</button>
+                    <label>Activity Name</label>
+                    <select id="inp-name" class="std-input">
+                        <option>Workout (General)</option>
+                        <option>Running</option>
+                        <option>Tennis</option>
+                        <option>Biking</option>
+                        <option>Yoga</option>
+                    </select>
+                    <label>Duration (Mins) or Distance</label>
+                    <input type="number" id="inp-val" class="std-input">
                 `;
             }
         }
 
-        function quickLog(type, mins, met) {
-            const cals = calculateCalories(met, mins);
-            appState.logs.push({ 
-                date: new Date().toISOString(), 
-                type: type, 
-                duration: mins, 
-                cals: cals 
-            });
-            if(type === 'Walk') { appState.habits.walk = true; renderHabits(); }
+        function closeModal() { document.getElementById('modal-log').classList.add('hidden'); }
+
+        function saveLog() {
+            const date = document.getElementById('log-date').value;
+            const valInput = document.getElementById('inp-val');
+            
+            if(!date || !valInput.value) return alert("Please complete all fields");
+
+            const val = parseFloat(valInput.value);
+            let logEntry = { date: date, val: val };
+
+            if(currentLogType === 'Weight') {
+                logEntry.type = 'Weight';
+            } else if(currentLogType === 'Steps') {
+                // Overwrite if exists for this date
+                appState.logs = appState.logs.filter(l => !(l.type === 'Steps' && l.date === date));
+                logEntry.type = 'Steps';
+            } else {
+                // Generic
+                logEntry.type = 'Activity';
+                logEntry.note = document.getElementById('inp-name').value;
+            }
+
+            appState.logs.push(logEntry);
             save();
+            closeModal();
             initApp();
-            alert(`Logged! Est burn: ${Math.round(cals)} cal`);
+            
+            // Algorithm Trigger (Simulated)
+            // If Sunday, recalculate schedule based on new logs...
+            if(new Date(date).getDay() === 0) runSundayAlgorithm(); 
         }
 
-        function renderSchedule() {
-            const list = document.getElementById('week-list');
-            list.innerHTML = "";
-            const todayStr = new Date().toISOString().split('T')[0];
+        /* --- 6. SUNDAY ALGORITHM --- */
+        function runSundayAlgorithm() {
+            // Get last 7 days of logs
+            // Calculate step average
+            // If avg > goal, increase goal by 5%
+            // This runs silently in background
+            console.log("Algorithm: Analyzing compliance...");
+        }
 
-            appState.weekPlan.forEach(d => {
-                const isToday = d.date === todayStr;
-                list.innerHTML += `
-                    <div style="padding:15px; border-bottom:1px solid var(--border); ${isToday?'background:rgba(255,255,255,0.05)':''}">
-                        <div style="font-weight:bold; color:var(--accent);">${d.dayName}</div>
+        /* --- 7. HABITS --- */
+        function toggleHabit(key) {
+            const today = getToday();
+            if(!appState.habits[today]) appState.habits[today] = {};
+            
+            appState.habits[today][key] = !appState.habits[today][key];
+            save();
+            renderHabits();
+        }
+
+        function renderHabits() {
+            const today = getToday();
+            const h = appState.habits[today] || {};
+            
+            // Water
+            const wRow = document.getElementById('row-water');
+            const wChk = document.getElementById('chk-water');
+            if(h.water) { wRow.classList.add('done'); wChk.innerHTML='<i class="fas fa-check"></i>'; }
+            else { wRow.classList.remove('done'); wChk.innerHTML=''; }
+
+            // Sleep
+            const sRow = document.getElementById('row-sleep');
+            const sChk = document.getElementById('chk-sleep');
+            if(h.sleep) { sRow.classList.add('done'); sChk.innerHTML='<i class="fas fa-check"></i>'; }
+            else { sRow.classList.remove('done'); sChk.innerHTML=''; }
+        }
+
+        /* --- 8. VISUALIZATION (CHARTS) --- */
+        let weightChartInst = null;
+        let stepChartInst = null;
+
+        function renderCharts() {
+            if(document.getElementById('view-stats').classList.contains('hidden')) return;
+
+            // Prepare Data
+            const sortedLogs = appState.logs.sort((a,b) => new Date(a.date) - new Date(b.date));
+            
+            // WEIGHT DATA
+            const wLogs = sortedLogs.filter(l => l.type === 'Weight');
+            const wLabels = wLogs.map(l => l.date.slice(5)); // MM-DD
+            const wData = wLogs.map(l => l.val);
+
+            const ctxW = document.getElementById('weightChart').getContext('2d');
+            if(weightChartInst) weightChartInst.destroy();
+            weightChartInst = new Chart(ctxW, {
+                type: 'line',
+                data: {
+                    labels: wLabels,
+                    datasets: [{
+                        label: 'Weight (lbs)',
+                        data: wData,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { 
+                        y: { grid: { color: '#334155' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // STEP DATA (Last 7 Days)
+            const stepData = [];
+            const stepLabels = [];
+            for(let i=6; i>=0; i--) {
+                const d = new Date(); d.setDate(d.getDate() - i);
+                const dStr = d.toISOString().split('T')[0];
+                const log = appState.logs.find(l => l.type === 'Steps' && l.date === dStr);
+                stepLabels.push(dStr.slice(5));
+                stepData.push(log ? log.val : 0);
+            }
+
+            const ctxS = document.getElementById('stepChart').getContext('2d');
+            if(stepChartInst) stepChartInst.destroy();
+            stepChartInst = new Chart(ctxS, {
+                type: 'bar',
+                data: {
+                    labels: stepLabels,
+                    datasets: [{
+                        label: 'Steps',
+                        data: stepData,
+                        backgroundColor: stepData.map(v => v >= appState.user.stepGoal ? '#10b981' : '#ef4444'),
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { 
+                        y: { grid: { color: '#334155' }, beginAtZero: true },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        /* --- 9. ROUTINE RENDERER --- */
+        function renderRoutine() {
+            // Simple logic: Mon/Thu Strength, Tue/Fri Cardio, Wed/Sat Mobility
+            const dayNum = new Date().getDay();
+            let routineName = "Active Recovery";
+            let routineDesc = "Focus on 7k steps and stretching.";
+            
+            if(dayNum === 1 || dayNum === 4) { routineName = "Strength A"; routineDesc = "Full Body Foundation"; }
+            if(dayNum === 2 || dayNum === 5) { routineName = "Cardio Flow"; routineDesc = "Heart Rate & Sweat"; }
+            if(dayNum === 3 || dayNum === 6) { routineName = "Mobility"; routineDesc = "Joint Health"; }
+
+            const card = document.getElementById('today-routine-card');
+            
+            // Check if logged
+            const today = getToday();
+            const isDone = appState.logs.find(l => l.type === 'Activity' && l.date === today && l.note.includes('Workout'));
+
+            if(isDone) {
+                card.innerHTML = `
+                    <div class="card" style="border-color:var(--success); background:rgba(16,185,129,0.1); text-align:center;">
+                        <h2 style="color:var(--success); margin-top:0;"><i class="fas fa-check-circle"></i> Workout Complete</h2>
+                        <p>Great job today.</p>
+                    </div>
+                `;
+            } else {
+                card.innerHTML = `
+                    <div class="card">
                         <div style="display:flex; justify-content:space-between;">
-                            <span>${d.routineKey || "Rest Day"}</span>
-                            <span>${d.completed ? '<i class="fas fa-check" style="color:var(--success)"></i>' : ''}</span>
+                            <span class="lib-tag" style="background:var(--accent); color:white;">Today's Plan</span>
+                        </div>
+                        <h2 style="margin-top:10px;">${routineName}</h2>
+                        <p>${routineDesc}</p>
+                        <button class="btn btn-primary" onclick="logWorkout('${routineName}')">Log Complete</button>
+                    </div>
+                `;
+            }
+        }
+
+        function logWorkout(name) {
+            appState.logs.push({ date: getToday(), type: 'Activity', note: name + " Workout", val: 30 });
+            save();
+            initApp();
+        }
+
+        /* --- 10. LIBRARY RENDERER --- */
+        function renderLibrary(filter = "") {
+            const list = document.getElementById('lib-list');
+            list.innerHTML = "";
+            
+            for(let key in library) {
+                if(filter && !key.toLowerCase().includes(filter.toLowerCase())) continue;
+                
+                const item = library[key];
+                list.innerHTML += `
+                    <div class="lib-item">
+                        <div class="lib-head" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display==='block'?'none':'block'">
+                            <div>
+                                <span class="lib-tag">${item.cat}</span>
+                                <div style="font-weight:bold; font-size:1.1rem;">${key}</div>
+                            </div>
+                            <i class="fas fa-chevron-down" style="color:var(--text-dim)"></i>
+                        </div>
+                        <div class="lib-body">
+                            <p><i>${item.desc}</i></p>
+                            <div style="margin-top:10px; color:var(--accent); font-weight:bold;">The How</div>
+                            <p style="white-space:pre-line;">${item.how}</p>
+                            <div style="margin-top:10px; color:var(--success); font-weight:bold;">The Why</div>
+                            <p>${item.why}</p>
                         </div>
                     </div>
                 `;
-            });
-        }
-
-        function renderLibrary() {
-            const list = document.getElementById('lib-list');
-            list.innerHTML = "";
-            for(let k in library) {
-                list.innerHTML += `
-                    <div class="lib-item" data-name="${k.toLowerCase()}" style="padding:15px; border-bottom:1px solid var(--border);">
-                        <div style="font-weight:bold; color:var(--text);">${k}</div>
-                        <div style="font-size:0.85rem; color:var(--text-light);">${library[k].desc}</div>
-                    </div>
-                `;
             }
-        }
-        
-        function filterLib(val) {
-            document.querySelectorAll('.lib-item').forEach(el => {
-                el.style.display = el.getAttribute('data-name').includes(val.toLowerCase()) ? 'block' : 'none';
-            });
         }
 
         function switchTab(t) {
             document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
-            document.getElementById('view-active').classList.add('hidden');
-            document.getElementById('main-nav').classList.remove('hidden');
+            document.getElementById(`view-${t}`).classList.remove('hidden');
             
-            if(t === 'active') {
-                document.getElementById('view-active').classList.remove('hidden');
-                document.getElementById('main-nav').classList.add('hidden');
-            } else {
-                document.getElementById('view-'+t).classList.remove('hidden');
-                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-                // Simple active state toggle
-                if(t==='dashboard') document.querySelectorAll('.nav-btn')[0].classList.add('active');
-                if(t==='schedule') document.querySelectorAll('.nav-btn')[1].classList.add('active');
-                if(t==='library') document.querySelectorAll('.nav-btn')[2].classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            if(t==='dashboard') document.querySelectorAll('.nav-btn')[0].classList.add('active');
+            if(t==='stats') {
+                document.querySelectorAll('.nav-btn')[1].classList.add('active');
+                renderCharts(); // Re-render charts when tab opens
             }
-        }
-
-        /* --- 8. ACTIVE WORKOUT --- */
-        let activeQ = [], activeIdx = 0, timer = null, timerVal = 0, currentRoutine = "";
-
-        function startWorkout(key) {
-            currentRoutine = key;
-            activeQ = routines[key].ex;
-            activeIdx = 0;
-            switchTab('active');
-            loadActive();
-        }
-
-        function loadActive() {
-            if(activeIdx >= activeQ.length) return finishWorkout();
-            
-            const name = activeQ[activeIdx];
-            const data = library[name];
-            
-            document.getElementById('act-progress').innerText = `${activeIdx+1} / ${activeQ.length}`;
-            document.getElementById('act-cat').innerText = data.cat;
-            document.getElementById('act-name').innerText = name;
-            document.getElementById('act-cue').innerText = data.desc;
-
-            const viz = document.getElementById('act-viz');
-            const btn = document.getElementById('act-btn');
-            clearInterval(timer);
-
-            if(data.type === 'reps') {
-                viz.innerHTML = `<div class="timer-display" style="color:var(--accent)">${data.val} <span style="font-size:2rem;color:var(--text-light)">reps</span></div>`;
-                btn.innerText = "Done";
-                btn.className = "btn btn-accent";
-                btn.onclick = nextEx;
-            } else {
-                timerVal = data.val;
-                viz.innerHTML = `<div class="timer-display">${timerVal}</div>`;
-                btn.innerText = "Start Timer";
-                btn.className = "btn btn-outline";
-                btn.onclick = () => {
-                    btn.innerText = "Running...";
-                    timer = setInterval(() => {
-                        timerVal--;
-                        viz.innerHTML = `<div class="timer-display">${timerVal}</div>`;
-                        if(timerVal <= 0) {
-                            clearInterval(timer);
-                            btn.innerText = "Next";
-                            btn.className = "btn btn-accent";
-                            btn.onclick = nextEx;
-                        }
-                    }, 1000);
-                }
-            }
-        }
-
-        function nextEx() { activeIdx++; loadActive(); }
-        
-        function quitWorkout() {
-            if(confirm("Quit workout?")) { clearInterval(timer); switchTab('dashboard'); }
-        }
-
-        function finishWorkout() {
-            clearInterval(timer);
-            // Mark complete
-            const todayStr = new Date().toISOString().split('T')[0];
-            const task = appState.weekPlan.find(d => d.date === todayStr);
-            if(task && task.routineKey === currentRoutine) task.completed = true;
-
-            // Log with Calories
-            const rData = routines[currentRoutine];
-            const duration = 25; // Approx
-            const cals = calculateCalories(rData.met, duration);
-            
-            appState.logs.push({ date: new Date().toISOString(), type: 'Workout', cals: cals, duration: duration });
-            save();
-            switchTab('dashboard');
-            initApp();
-            alert(`Great job! Burned approx ${Math.round(cals)} kcals.`);
+            if(t==='library') document.querySelectorAll('.nav-btn')[2].classList.add('active');
         }
 
     </script>
