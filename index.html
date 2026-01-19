@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PrimeFit v2</title>
+    <title>PrimeFit v3</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         :root {
-            --bg: #0f172a; --card: #1e293b;
+            --bg: #0f172a; --card: #1e293b; --modal: #334155;
             --text: #f8fafc; --text-light: #94a3b8;
-            --accent: #3b82f6; --accent-light: #60a5fa;
-            --success: #10b981; --danger: #ef4444;
+            --accent: #3b82f6; --accent-dark: #1d4ed8;
+            --success: #10b981; --danger: #ef4444; --warn: #f59e0b;
             --border: #334155;
             --ring-move: #fa114f; --ring-ex: #a2ff00; --ring-stand: #00f5ea;
         }
@@ -24,45 +24,46 @@
 
         /* TYPOGRAPHY */
         h1 { font-size: 1.8rem; font-weight: 800; margin: 0 0 5px 0; letter-spacing: -0.5px; }
-        h2 { font-size: 1.4rem; font-weight: 700; margin: 25px 0 15px 0; border-bottom: 2px solid var(--accent); display: inline-block; }
+        h2 { font-size: 1.4rem; font-weight: 700; margin: 15px 0 10px 0; color:white; }
         h3 { font-size: 1.1rem; font-weight: 600; color: var(--text-light); margin-bottom: 5px; }
         p { color: var(--text-light); line-height: 1.6; margin-top: 0; }
+        small { font-size: 0.8rem; color: var(--text-light); }
 
-        /* CARDS & UI */
-        .card { background: var(--card); border-radius: 16px; padding: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); border: 1px solid var(--border); margin-bottom: 15px; }
-        .btn { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 10px; }
+        /* UI ELEMENTS */
+        .card { background: var(--card); border-radius: 16px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); border: 1px solid var(--border); margin-bottom: 15px; }
+        .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 700; font-size: 1rem; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition:0.2s; }
         .btn-primary { background: var(--text); color: var(--bg); }
         .btn-accent { background: var(--accent); color: white; }
-        .btn-outline { background: transparent; border: 2px solid var(--text); color: var(--text); }
-        .btn-ghost { background: rgba(255,255,255,0.1); color: var(--text); }
-        
-        /* DASHBOARD */
+        .btn-outline { background: transparent; border: 2px solid var(--border); color: var(--text); }
+        .btn-ghost { background: rgba(255,255,255,0.05); color: var(--text-light); }
+        .std-input { width: 100%; padding: 12px; border: 1px solid var(--border); background: var(--bg); color:white; border-radius: 8px; font-size: 1rem; margin-bottom: 10px; }
+
+        /* DASHBOARD & RINGS */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .score-circle { width: 120px; height: 120px; border-radius: 50%; border: 8px solid var(--accent); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px auto; }
-        .score-val { font-size: 2.5rem; font-weight: 900; color: var(--accent); line-height: 1; }
-        
-        /* WEEKLY SCHEDULE LIST */
-        .day-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border); opacity: 0.6; }
-        .day-row.active { opacity: 1; background: rgba(59, 130, 246, 0.1); padding: 15px; border-radius: 10px; border-bottom: none; margin: 5px 0; border: 1px solid var(--accent); }
-        .day-row.done { opacity: 1; }
-        .day-row.done .status-icon { color: var(--success); }
-        
-        /* LIBRARY */
-        .lib-item { margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
-        .lib-tag { background: #334155; padding: 4px 10px; border-radius: 15px; font-size: 0.75rem; font-weight: bold; color:white;}
-        
-        /* ACTIVE WORKOUT */
-        #view-active { position: fixed; inset: 0; background: var(--bg); z-index: 100; overflow-y: auto; display: flex; flex-direction: column; }
-        .active-header { padding: 15px; background: var(--card); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-        .timer-big { font-size: 5rem; font-weight: 900; text-align: center; color: var(--text); font-variant-numeric: tabular-nums; margin: 20px 0; }
-        
-        /* CUES & TEMPO */
-        .cue-box { background: rgba(245, 158, 11, 0.1); border-left: 5px solid #f59e0b; padding: 15px; margin: 20px 0; }
-        .cue-list { padding-left: 20px; margin: 0; line-height: 1.6; color: var(--text); }
-        
-        /* RINGS MINI */
         .rings-mini { display:flex; gap:10px; margin-top:10px; }
         .ring-pill { flex:1; padding:8px; border-radius:8px; font-weight:bold; text-align:center; color:black; font-size:0.8rem;}
+        
+        /* LIBRARY & LOG STYLE */
+        .lib-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .lib-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; cursor: pointer; transition: transform 0.1s; display:flex; justify-content:space-between; align-items:center; }
+        .lib-card:active { transform: scale(0.98); background: var(--border); }
+        .tag { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-right:5px; }
+        .tag-muscle { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .tag-type { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+
+        /* JOURNAL ROWS */
+        .log-row { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--card); border-bottom: 1px solid var(--border); cursor: pointer; }
+        .log-row:first-child { border-top-left-radius: 16px; border-top-right-radius: 16px; }
+        .log-row:last-child { border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; border-bottom: none; }
+        .log-date { font-weight: bold; font-size: 0.9rem; }
+        .log-stats { display: flex; gap: 8px; font-size: 0.8rem; color: var(--text-light); }
+
+        /* MODAL */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; display: flex; align-items: end; opacity: 0; pointer-events: none; transition: 0.3s; }
+        .modal-overlay.open { opacity: 1; pointer-events: all; }
+        .modal-sheet { background: var(--modal); width: 100%; max-height: 85vh; border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 25px; overflow-y: auto; transform: translateY(100%); transition: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .modal-overlay.open .modal-sheet { transform: translateY(0); }
+        .detail-stat { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; text-align: center; }
 
         /* NAV */
         .nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: var(--card); border-top: 1px solid var(--border); display: flex; justify-content: space-around; z-index: 50; }
@@ -70,7 +71,9 @@
         .nav-btn.active { color: var(--accent); }
         .nav-btn i { font-size: 1.5rem; margin-bottom: 4px; }
         
-        .std-input { width: 100%; padding: 15px; border: 2px solid var(--border); background: var(--bg); color:white; border-radius: 10px; font-size: 1.1rem; margin-bottom: 10px; }
+        /* UTILS */
+        .timer-big { font-size: 5rem; font-weight: 900; text-align: center; color: var(--text); font-variant-numeric: tabular-nums; margin: 20px 0; }
+        .cue-box { background: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--warn); padding: 15px; margin: 15px 0; border-radius: 0 8px 8px 0; }
     </style>
 </head>
 <body>
@@ -78,13 +81,10 @@
     <div id="view-onboarding" class="container hidden" style="height:100vh; display:flex; flex-direction:column; justify-content:center;">
         <h1 style="text-align:center; color:var(--accent);">PRIME<span style="color:white">FIT</span></h1>
         <p style="text-align:center; margin-bottom:30px;">High-intensity programming & Data tracking.</p>
-        
         <label><b>First Name</b></label>
         <input type="text" id="inp-name" class="std-input" placeholder="Name">
-        
         <label><b>Current Weight (lbs)</b></label>
         <input type="number" id="inp-weight" class="std-input" placeholder="175">
-
         <button class="btn btn-accent" onclick="finishOnboarding()">Generate Plan</button>
     </div>
 
@@ -99,38 +99,27 @@
 
         <div id="sunday-card" class="card hidden" style="border: 2px solid var(--accent);">
             <div style="text-align:center; padding-bottom:15px; border-bottom:1px solid var(--border); margin-bottom:15px;">
-                <h2 style="margin:0; border:none; color:var(--text);">Weekly Check-In</h2>
+                <h2 style="margin:0; border:none;">Weekly Check-In</h2>
                 <p style="margin:0; font-size:0.9rem;">Review last week to unlock next week.</p>
             </div>
-            
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
-                <div class="score-circle" style="width:100px; height:100px; margin:0 auto;">
-                    <span class="score-val" id="week-adherence" style="font-size:1.8rem">0%</span>
+                <div class="score-circle" style="width:100px; height:100px; margin:0 auto; border: 6px solid var(--accent); border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                    <span class="score-val" id="week-adherence" style="font-size:1.8rem; font-weight:900; color:var(--accent);">0%</span>
                     <span style="font-size:0.6rem; font-weight:bold; text-transform:uppercase;">Adherence</span>
                 </div>
-                <div class="score-circle" style="width:100px; height:100px; margin:0 auto; border-color:var(--ring-move);">
-                    <span class="score-val" id="week-move-avg" style="font-size:1.8rem; color:var(--ring-move);">0</span>
+                <div class="score-circle" style="width:100px; height:100px; margin:0 auto; border: 6px solid var(--ring-move); border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                    <span class="score-val" id="week-move-avg" style="font-size:1.8rem; font-weight:900; color:var(--ring-move);">0</span>
                     <span style="font-size:0.6rem; font-weight:bold; text-transform:uppercase;">Avg Move</span>
                 </div>
             </div>
-
-            <div id="sunday-feedback" style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; margin-bottom:15px; font-size:0.9rem;">
-                </div>
-
+            <div id="sunday-feedback" style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; margin-bottom:15px; font-size:0.9rem;"></div>
             <div id="sunday-input-group">
-                <div style="margin-bottom:15px;">
-                    <label style="font-size:0.8rem; font-weight:bold; color:var(--text-light);">LOG WEIGHT (LBS)</label>
-                    <input type="number" id="sunday-weight" class="std-input" placeholder="Current Weight">
-                </div>
-
-                <button class="btn btn-accent" onclick="processWeeklyAnalysis()">
-                    <i class="fas fa-magic"></i> Analyze & Optimize Next Week
-                </button>
+                <input type="number" id="sunday-weight" class="std-input" placeholder="Current Weight (lbs)">
+                <button class="btn btn-accent" onclick="processWeeklyAnalysis()">Analyze & Unlock</button>
             </div>
-            
             <div id="sunday-complete" class="hidden" style="text-align:center;">
                 <i class="fas fa-check-circle" style="color:var(--success); font-size:3rem; margin-bottom:10px;"></i>
-                <p>You're all set for Monday.</p>
+                <p>Plan Updated.</p>
             </div>
         </div>
 
@@ -138,7 +127,6 @@
             <div class="card" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <h3 style="margin:0; color:white;"><i class="fab fa-apple"></i> Watch Targets</h3>
-                    <small style="color:var(--text-light)">Daily Goals</small>
                 </div>
                 <div class="rings-mini">
                     <div class="ring-pill" style="background:var(--ring-move);" id="goal-move">600</div>
@@ -147,146 +135,159 @@
                 </div>
             </div>
 
-            <div class="card" id="today-card">
-                </div>
+            <div class="card" id="today-card"></div>
 
-            <div class="card">
+            <div class="card" id="quick-log-card">
                 <h3><i class="fas fa-history"></i> Log Yesterday's Rings</h3>
                 <div style="display:flex; gap:5px;">
                     <input type="number" id="log-move" class="std-input" placeholder="Move" style="margin:0; flex:1; border-color:var(--ring-move);">
                     <input type="number" id="log-ex" class="std-input" placeholder="Ex" style="margin:0; flex:1; border-color:var(--ring-ex);">
                     <input type="number" id="log-stand" class="std-input" placeholder="Stand" style="margin:0; flex:1; border-color:var(--ring-stand);">
                 </div>
-                <button class="btn btn-ghost" style="margin-top:10px;" onclick="logRings()">Save Data</button>
+                <button class="btn btn-ghost" style="margin-top:10px;" onclick="logRingsQuick()">Save Data</button>
             </div>
         </div>
     </div>
 
     <div id="view-schedule" class="container hidden">
-        <div class="header">
-            <h1>Schedule</h1>
-        </div>
-        <div class="card" id="week-list"></div>
+        <h1>Schedule</h1>
+        <div class="card" id="week-list" style="margin-top:10px; padding:0;"></div>
     </div>
 
-    <div id="view-weight" class="container hidden">
-        <div class="header">
-            <h1>Progress</h1>
-            <button class="btn btn-primary" style="width:auto; padding:8px 15px; font-size:0.8rem;" onclick="toggleLogWeight()">
-                <i class="fas fa-plus"></i> Log
-            </button>
-        </div>
-
-        <div id="log-weight-box" class="card hidden">
-            <h3>Log Current Weight</h3>
-            <div style="display:flex; gap:10px;">
-                <input type="number" id="tab-weight-input" class="std-input" placeholder="lbs">
-                <button class="btn btn-accent" style="width:auto;" onclick="logWeightTab()">Save</button>
-            </div>
-        </div>
-
-        <div class="card">
-            <canvas id="weight-chart"></canvas>
-        </div>
-        
-        <div class="card">
-            <h3>Stats</h3>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; text-align:center;">
-                <div>
-                    <div style="font-size:2rem; font-weight:800; color:var(--text);" id="stat-start">--</div>
-                    <small>Starting</small>
-                </div>
-                <div>
-                    <div style="font-size:2rem; font-weight:800; color:var(--accent);" id="stat-current">--</div>
-                    <small>Current</small>
-                </div>
-            </div>
-        </div>
+    <div id="view-journal" class="container hidden">
+        <h1>Journal</h1>
+        <p>Tap a day to edit details.</p>
+        <div id="journal-list" style="margin-top:20px;"></div>
     </div>
 
     <div id="view-library" class="container hidden">
-        <h1>Exercise Guide</h1>
-        <div class="card" id="lib-list"></div>
-    </div>
-
-    <div id="view-active" class="hidden">
-        <div class="active-header">
-            <button class="btn btn-ghost" style="width:auto; margin:0; padding:8px 15px; color:var(--danger);" onclick="quitWorkout()">Quit</button>
-            <strong id="act-routine">Routine</strong>
-            <div style="width:60px"></div>
-        </div>
-        <div style="padding:20px; padding-bottom:100px;">
-            <div style="text-align:center;">
-                <span class="lib-tag">Set <span id="act-idx">1</span></span>
-                <h1 id="act-name" style="margin-top:10px; font-size:2.2rem;">Name</h1>
-            </div>
-
-            <div id="act-viz"></div>
-
-            <div class="cue-box">
-                <strong><i class="fas fa-crosshairs"></i> Form Cues</strong>
-                <ul id="act-cues" class="cue-list"></ul>
-            </div>
-
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-                <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; text-align:center;">
-                    <small style="color:var(--text-light)">TEMPO</small>
-                    <div id="act-tempo" style="font-weight:bold;">2-0-2</div>
-                </div>
-                <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; text-align:center;">
-                    <small style="color:var(--text-light)">INTENSITY</small>
-                    <div id="act-breath" style="font-weight:bold;">RPE 8</div>
-                </div>
-            </div>
-
-            <button class="btn btn-success" id="act-btn" style="margin-top:20px; padding:20px; font-size:1.2rem;" onclick="nextExercise()">Start</button>
-        </div>
+        <h1>Exercise Database</h1>
+        <div class="lib-grid" id="lib-list" style="margin-top:20px;"></div>
     </div>
 
     <div class="nav">
         <button class="nav-btn active" onclick="switchTab('dashboard')"><i class="fas fa-bolt"></i>Today</button>
         <button class="nav-btn" onclick="switchTab('schedule')"><i class="fas fa-calendar-day"></i>Plan</button>
-        <button class="nav-btn" onclick="switchTab('weight')"><i class="fas fa-chart-line"></i>Stats</button>
+        <button class="nav-btn" onclick="switchTab('journal')"><i class="fas fa-book"></i>Log</button>
         <button class="nav-btn" onclick="switchTab('library')"><i class="fas fa-dumbbell"></i>Guide</button>
     </div>
 
+    <div id="modal-ex" class="modal-overlay" onclick="closeModal('modal-ex')">
+        <div class="modal-sheet" onclick="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between; align-items:start;">
+                <h1 id="mod-title" style="margin:0;">Exercise</h1>
+                <button class="btn-outline" style="width:auto; padding:5px 10px; border-radius:50%;" onclick="closeModal('modal-ex')"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="mod-tags" style="margin:10px 0;"></div>
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
+                <div class="detail-stat">
+                    <div style="font-size:0.7rem; color:var(--text-light); text-transform:uppercase;">Completed</div>
+                    <div id="mod-count" style="font-size:1.5rem; font-weight:bold; color:var(--accent);">0</div>
+                </div>
+                <div class="detail-stat" style="border:1px solid var(--accent);">
+                    <div style="font-size:0.7rem; color:var(--accent); text-transform:uppercase;">Breathing</div>
+                    <div id="mod-breath" style="font-size:0.9rem; font-weight:bold;">-</div>
+                </div>
+            </div>
+
+            <h3>Technique</h3>
+            <p id="mod-desc" style="font-size:0.95rem; color:white;"></p>
+            
+            <div class="cue-box">
+                <strong style="color:var(--warn);">Key Cues</strong>
+                <ul id="mod-steps" style="padding-left:20px; margin:5px 0; color:var(--text-light); font-size:0.9rem;"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-edit" class="modal-overlay" onclick="closeModal('modal-edit')">
+        <div class="modal-sheet" onclick="event.stopPropagation()">
+            <h2 id="edit-date-title">Edit Date</h2>
+            <input type="hidden" id="edit-date-val">
+            
+            <label style="font-weight:bold; font-size:0.8rem; color:var(--text-light);">APPLE WATCH RINGS</label>
+            <div style="display:flex; gap:10px; margin-bottom:20px;">
+                <input type="number" id="edit-move" class="std-input" style="border-color:var(--ring-move);" placeholder="Move">
+                <input type="number" id="edit-ex" class="std-input" style="border-color:var(--ring-ex);" placeholder="Ex">
+                <input type="number" id="edit-stand" class="std-input" style="border-color:var(--ring-stand);" placeholder="Stand">
+            </div>
+
+            <label style="font-weight:bold; font-size:0.8rem; color:var(--text-light);">BODY WEIGHT</label>
+            <input type="number" id="edit-weight" class="std-input" placeholder="Lbs">
+
+            <button class="btn btn-accent" onclick="saveDayEdit()">Save Changes</button>
+            <button class="btn btn-ghost" onclick="closeModal('modal-edit')" style="margin-top:10px;">Cancel</button>
+        </div>
+    </div>
+
+    <div id="view-active" class="hidden" style="position:fixed; inset:0; background:var(--bg); z-index:100; overflow-y:auto;">
+        <div class="active-header" style="padding:15px; display:flex; justify-content:space-between; align-items:center; background:var(--card);">
+            <button class="btn btn-ghost" style="width:auto; padding:5px 10px; color:var(--danger);" onclick="quitWorkout()">Quit</button>
+            <strong id="act-routine">Routine</strong>
+            <div style="width:50px"></div>
+        </div>
+        <div style="padding:20px; padding-bottom:100px;">
+            <div style="text-align:center;">
+                <span style="background:var(--border); padding:5px 10px; border-radius:15px; font-size:0.8rem;">Set <span id="act-idx">1</span></span>
+                <h1 id="act-name" style="margin-top:10px; font-size:2.2rem;">Name</h1>
+            </div>
+            <div id="act-viz"></div>
+            <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; margin:20px 0; text-align:center;">
+                <div style="font-size:0.8rem; color:var(--text-light); margin-bottom:5px;">BREATHING PATTERN</div>
+                <div id="act-breath-disp" style="font-weight:bold; font-size:1.1rem; color:var(--accent-light);"></div>
+            </div>
+            <div class="cue-box">
+                <ul id="act-cues" style="padding-left:20px; margin:0; color:var(--text);"></ul>
+            </div>
+            <button class="btn btn-success" id="act-btn" style="margin-top:20px; padding:20px; font-size:1.2rem;" onclick="nextExercise()">Start</button>
+        </div>
+    </div>
+
     <script>
-        /* --- 1. DATA: Re-tooled for 21yo --- */
+        /* --- 1. EXPANDED DATA --- */
         const library = {
             "Burpees": {
-                desc: "Full body metabolic conditioning. Chest to floor.",
-                steps: ["Drop to hands.", "Kick feet back.", "Chest to floor.", "Pop up.", "Jump high and clap."],
-                type: "reps", val: 15, tempo: "Explosive", breath: "RPE 9"
+                desc: "The ultimate full-body metabolic conditioning tool. Combines a squat, push-up, and jump to spike heart rate and build explosive power.",
+                muscles: ["Chest", "Quads", "Core"],
+                type: "reps", val: 15, tempo: "Explosive", breath: "Inhale drop, Exhale jump",
+                steps: ["Squat and place hands on floor.", "Jump feet back into plank.", "Drop chest to floor.", "Press up and snap feet to hands.", "Jump vertically and clap overhead."]
             },
             "Jump Squats": {
-                desc: "Explosive leg power development.",
-                steps: ["Squat depth below parallel.", "Explode up vertically.", "Land softly.", "Immediately recoil."],
-                type: "reps", val: 20, tempo: "Fast", breath: "RPE 8"
+                desc: "A plyometric variation of the squat designed to develop lower body power and vertical jump height.",
+                muscles: ["Quads", "Glutes", "Calves"],
+                type: "reps", val: 20, tempo: "Fast Up, Control Down", breath: "Inhale down, Exhale jump",
+                steps: ["Squat depth below parallel.", "Explode up vertically.", "Land softly on balls of feet.", "Immediately recoil into next rep."]
             },
             "Diamond Push-ups": {
-                desc: "Tricep and inner chest focus.",
-                steps: ["Hands form diamond shape.", "Elbows tucked to sides.", "Chest touches hands.", "Lock out at top."],
-                type: "reps", val: 15, tempo: "2-0-1", breath: "RPE 8"
+                desc: "A close-grip push-up variation that shifts emphasis from the chest to the triceps and inner pectorals.",
+                muscles: ["Triceps", "Inner Chest"],
+                type: "reps", val: 15, tempo: "2s Down, 1s Up", breath: "Inhale down, Exhale push",
+                steps: ["Form a diamond shape with thumbs/indexes.", "Lower chest to touch hands.", "Keep elbows tucked to sides.", "Lock out elbows at top."]
             },
             "Mountain Climbers": {
-                desc: "Core stability and cardio.",
-                steps: ["Plank position.", "Drive knee to chest.", "Switch rapidly.", "Keep hips low."],
-                type: "time", val: 45, tempo: "Max Speed", breath: "Rhythmic"
+                desc: "A horizontal running motion that builds core stability and cardiovascular endurance.",
+                muscles: ["Core", "Shoulders", "Cardio"],
+                type: "time", val: 45, tempo: "Max Speed", breath: "Rhythmic breathing",
+                steps: ["Start in high plank.", "Drive right knee to chest.", "Switch legs rapidly.", "Keep hips level (don't bounce)."]
             },
             "Hollow Body Hold": {
-                desc: "Gymnastic core strength.",
-                steps: ["Lie on back.", "Lift legs and shoulders.", "Lower back glued to floor.", "Arms overhead."],
-                type: "time", val: 60, tempo: "Static", breath: "Braced"
+                desc: "The gold standard isometric exercise for gymnastic core strength and anterior chain stability.",
+                muscles: ["Abs", "Hip Flexors"],
+                type: "time", val: 60, tempo: "Static", breath: "Short sips of air",
+                steps: ["Lie on back, arms overhead.", "Lift shoulders and legs off ground.", "Press lower back firmly into floor.", "Body forms a 'banana' shape."]
             },
             "Walking Lunges": {
-                desc: "Unilateral leg strength.",
-                steps: ["Step forward.", "Back knee taps floor.", "Drive through front heel.", "Torso upright."],
-                type: "reps", val: 24, tempo: "Controlled", breath: "RPE 7"
+                desc: "Unilateral leg training to fix imbalances and improve hip mobility while building strength.",
+                muscles: ["Glutes", "Quads", "Hamstrings"],
+                type: "reps", val: 24, tempo: "Controlled", breath: "Inhale step, Exhale drive",
+                steps: ["Step forward into lunge.", "Back knee taps floor gently.", "Drive through front heel to stand.", "Keep torso upright."]
             },
             "High Knees": {
-                desc: "Sprinting in place.",
-                steps: ["Knees to hip height.", "Pump arms.", "Light on toes.", "Maintain posture."],
-                type: "time", val: 60, tempo: "Sprint", breath: "RPE 9"
+                desc: "High-intensity sprinting in place to maximize calorie burn and improve running mechanics.",
+                muscles: ["Cardio", "Hip Flexors"],
+                type: "time", val: 60, tempo: "Sprint", breath: "Rhythmic (2-in, 2-out)",
+                steps: ["Drive knees to hip height.", "Pump arms cheek-to-cheek.", "Stay light on balls of feet.", "Maintain tall posture."]
             }
         };
 
@@ -300,19 +301,20 @@
         let appState = {
             user: { name: "", startWeight: 0, currentWeight: 0, goals: {m:0, e:0, s:0} },
             weekPlan: [],
-            logs: [], // {date, type, val}
+            logs: [], // {date, type, val} -> Workout history
             ringLogs: [], // {date, m, e, s}
             weightHistory: [], // {date, weight}
-            lastCheckIn: null, // DateString
+            lastCheckIn: null, 
             onboarded: false
         };
-
+        
         let audioCtx = null;
-        let weightChart = null;
+        let timer = null;
+        let activeR = null, actIdx = 0, timerVal = 0, isPaused = false;
 
-        /* --- 3. LOGIC --- */
+        /* --- 3. INIT --- */
         window.onload = () => {
-            const saved = localStorage.getItem('PrimeFit_v2');
+            const saved = localStorage.getItem('PrimeFit_v3');
             if(saved) appState = JSON.parse(saved);
 
             if(!appState.onboarded) document.getElementById('view-onboarding').classList.remove('hidden');
@@ -322,7 +324,7 @@
             }
         };
 
-        function save() { localStorage.setItem('PrimeFit_v2', JSON.stringify(appState)); }
+        function save() { localStorage.setItem('PrimeFit_v3', JSON.stringify(appState)); }
 
         function finishOnboarding() {
             const n = document.getElementById('inp-name').value;
@@ -333,14 +335,7 @@
             appState.user.startWeight = w;
             appState.user.currentWeight = w;
             appState.weightHistory.push({date: new Date().toISOString(), weight: w});
-
-            // Calculate Watch Goals
-            appState.user.goals = {
-                m: Math.round(w * 4.5),
-                e: 45,
-                s: 12
-            };
-
+            appState.user.goals = { m: Math.round(w * 4.5), e: 45, s: 12 };
             appState.onboarded = true;
             generateWeek();
             save();
@@ -352,18 +347,14 @@
             const plan = [];
             const today = new Date();
             const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-            
             for(let i=0; i<7; i++) {
                 let d = new Date();
                 d.setDate(today.getDate() + i);
                 let dayNum = d.getDay();
                 let rKey = null;
-
-                // 21yo Split: Mon(HIIT), Tue(Power), Wed(Metcon), Thu(HIIT), Fri(Power), Sat(Metcon), Sun(Rest)
                 if(dayNum === 1 || dayNum === 4) rKey = 'HIIT A';
                 else if(dayNum === 2 || dayNum === 5) rKey = 'Power B';
                 else if(dayNum === 3 || dayNum === 6) rKey = 'Metcon C';
-
                 plan.push({
                     date: d.toISOString().split('T')[0],
                     dayName: days[dayNum],
@@ -379,18 +370,13 @@
             else {
                 const lastDate = new Date(appState.weekPlan[6].date);
                 const today = new Date();
-                // Simple date check
-                if(today > lastDate && today.toDateString() !== lastDate.toDateString()) {
-                   generateWeek(); 
-                }
+                if(today > lastDate && today.toDateString() !== lastDate.toDateString()) generateWeek(); 
             }
         }
 
         function initApp() {
             document.getElementById('dash-greeting').innerText = `What's good, ${appState.user.name}`;
             document.getElementById('dash-date').innerText = new Date().toDateString();
-            
-            // Set Goals UI
             document.getElementById('goal-move').innerText = appState.user.goals.m;
             document.getElementById('goal-ex').innerText = appState.user.goals.e;
             document.getElementById('goal-stand').innerText = appState.user.goals.s;
@@ -398,7 +384,7 @@
             renderDashboard();
             renderSchedule();
             renderLibrary();
-            renderWeightChart();
+            renderJournal();
         }
 
         function switchTab(t) {
@@ -406,35 +392,37 @@
             document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
             document.getElementById(`view-${t}`).classList.remove('hidden');
             
-            const map = {'dashboard':0, 'schedule':1, 'weight':2, 'library':3};
+            const map = {'dashboard':0, 'schedule':1, 'journal':2, 'library':3};
             document.querySelectorAll('.nav-btn')[map[t]].classList.add('active');
-            
-            if(t === 'weight') renderWeightChart();
+            if(t === 'journal') renderJournal();
         }
 
-        /* --- DASHBOARD --- */
+        /* --- DASHBOARD LOGIC --- */
         function renderDashboard() {
             const todayStr = new Date().toISOString().split('T')[0];
+            const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+            const yestStr = yesterday.toISOString().split('T')[0];
             const dayNum = new Date().getDay();
-            const checkedInToday = appState.lastCheckIn === todayStr;
 
-            // Sunday Check-In Logic
+            // 1. Conditional Logic for Quick Log
+            // Check if ringLogs has an entry for yesterday
+            const hasYesterday = appState.ringLogs.find(l => l.date.startsWith(yestStr));
+            if(hasYesterday) document.getElementById('quick-log-card').classList.add('hidden');
+            else document.getElementById('quick-log-card').classList.remove('hidden');
+
+            // 2. Sunday Check
             if(dayNum === 0) {
                 document.getElementById('normal-dash').classList.add('hidden');
                 document.getElementById('sunday-card').classList.remove('hidden');
-                
-                if(checkedInToday) {
-                    // Show "Complete" state
+                const checkedIn = appState.lastCheckIn === todayStr;
+                if(checkedIn) {
                     document.getElementById('sunday-input-group').classList.add('hidden');
                     document.getElementById('sunday-complete').classList.remove('hidden');
-                    document.getElementById('sunday-feedback').innerHTML = "Plan generated. Rest up.";
                 } else {
-                    // Show "Needs Input" state
                     document.getElementById('sunday-input-group').classList.remove('hidden');
                     document.getElementById('sunday-complete').classList.add('hidden');
                     prepareSundayReport();
                 }
-                
             } else {
                 document.getElementById('normal-dash').classList.remove('hidden');
                 document.getElementById('sunday-card').classList.add('hidden');
@@ -443,28 +431,36 @@
                 const container = document.getElementById('today-card');
                 
                 if(!task || !task.routineKey) {
-                    container.innerHTML = `<h2>Active Recovery</h2><p>Hit your Move goal, but no workout required.</p>`;
+                    container.innerHTML = `<h2>Active Recovery</h2><p>Hit your Move goal today.</p>`;
                 } else if(task.completed) {
-                    container.innerHTML = `
-                        <div style="text-align:center; padding:20px;">
-                            <i class="fas fa-check-circle" style="font-size:4rem; color:var(--success);"></i>
-                            <h2>Crushed It.</h2>
-                        </div>`;
+                    container.innerHTML = `<div style="text-align:center; padding:20px;"><i class="fas fa-check-circle" style="font-size:4rem; color:var(--success);"></i><h2>Done.</h2></div>`;
                 } else {
                     const r = routines[task.routineKey];
                     container.innerHTML = `
                         <h3 style="text-transform:uppercase; font-size:0.8rem;">MISSION</h3>
                         <h2 style="margin-top:5px; border:none;">${task.routineKey}</h2>
-                        <p>${r.exercises.length} Exercises • ${r.duration} Mins • High Intensity</p>
+                        <p>${r.exercises.length} Exercises • ${r.duration} Mins</p>
                         <button class="btn btn-accent" onclick="startWorkout('${task.routineKey}')">Start Workout</button>
                     `;
                 }
             }
         }
 
-        /* --- SUNDAY ALGORITHM --- */
+        function logRingsQuick() {
+            const m = parseInt(document.getElementById('log-move').value);
+            const e = parseInt(document.getElementById('log-ex').value);
+            const s = parseInt(document.getElementById('log-stand').value);
+            if(!m || !e || !s) return alert("Fill all rings");
+            
+            // Log date as yesterday
+            const yest = new Date(); yest.setDate(yest.getDate() - 1);
+            appState.ringLogs.push({date: yest.toISOString(), m, e, s});
+            save();
+            renderDashboard();
+        }
+
+        /* --- SUNDAY LOGIC --- */
         function prepareSundayReport() {
-            // 1. Calc Adherence (Plan currently in state)
             const scheduled = appState.weekPlan.filter(d => d.routineKey).length;
             const done = appState.weekPlan.filter(d => d.completed).length;
             const score = scheduled === 0 ? 100 : Math.round((done/scheduled)*100);
@@ -472,192 +468,206 @@
             document.getElementById('week-adherence').innerText = score + "%";
             document.getElementById('week-adherence').dataset.val = score;
 
-            // 2. Calc Ring Avgs (Last 7 Logs)
             const recentRings = appState.ringLogs.slice(-7);
-            let avgMove = 0;
-            if(recentRings.length > 0) {
-                avgMove = Math.round(recentRings.reduce((a,b)=>a+b.m,0) / recentRings.length);
-            }
+            let avgMove = recentRings.length ? Math.round(recentRings.reduce((a,b)=>a+b.m,0)/recentRings.length) : 0;
             document.getElementById('week-move-avg').innerText = avgMove;
             document.getElementById('week-move-avg').dataset.val = avgMove;
 
-            // 3. Static Feedback
-            let msg = "";
-            if(score >= 80 && avgMove > appState.user.goals.m) {
-                msg = `<span style="color:var(--success)"><i class="fas fa-arrow-trend-up"></i> <b>Strong.</b></span> High adherence & activity.`;
-            } else if(score < 50) {
-                msg = `<span style="color:var(--danger)"><i class="fas fa-battery-quarter"></i> <b>Reset.</b></span> Low consistency detected.`;
-            } else {
-                msg = `<b>Stable.</b> Good maintenance work.`;
-            }
-            document.getElementById('sunday-feedback').innerHTML = msg;
+            let msg = score >= 80 && avgMove > appState.user.goals.m ? "High Performance." : (score < 50 ? "Reset Week." : "Stable Week.");
+            document.getElementById('sunday-feedback').innerText = msg;
         }
 
         function processWeeklyAnalysis() {
             const wInput = document.getElementById('sunday-weight');
-            if(!wInput.value) return alert("Log weight to complete check-in.");
+            if(!wInput.value) return alert("Log weight.");
             
-            // 1. Save Weight
-            const newWeight = parseFloat(wInput.value);
-            appState.user.currentWeight = newWeight;
-            appState.weightHistory.push({date: new Date().toISOString(), weight: newWeight});
+            appState.user.currentWeight = parseFloat(wInput.value);
+            appState.weightHistory.push({date: new Date().toISOString(), weight: parseFloat(wInput.value)});
 
-            // 2. Optimization Algorithm
             const score = parseInt(document.getElementById('week-adherence').dataset.val);
             const avgMove = parseInt(document.getElementById('week-move-avg').dataset.val);
             const oldGoals = {...appState.user.goals};
-            let changes = [];
 
-            // Move Ring Logic
-            if(score >= 80 && avgMove > oldGoals.m) {
-                appState.user.goals.m += 50;
-                changes.push("Move Goal: +50 (High Performance)");
-            } else if (score < 40) {
-                appState.user.goals.m = Math.max(400, oldGoals.m - 50); 
-                changes.push("Move Goal: -50 (Recovery Mode)");
-            }
+            if(score >= 80 && avgMove > oldGoals.m) appState.user.goals.m += 50;
+            else if (score < 40) appState.user.goals.m = Math.max(400, oldGoals.m - 50);
 
-            // Exercise Ring Logic
-            if(score >= 90) {
-                appState.user.goals.e += 5;
-                changes.push("Exercise Goal: +5m");
-            } else if (score < 50) {
-                appState.user.goals.e = Math.max(30, oldGoals.e - 5);
-                changes.push("Exercise Goal: -5m");
-            }
+            if(score >= 90) appState.user.goals.e += 5;
+            else if (score < 50) appState.user.goals.e = Math.max(30, oldGoals.e - 5);
 
-            // 3. Save & Regenerate
             appState.lastCheckIn = new Date().toISOString().split('T')[0];
             generateWeek(); 
             save();
-
-            // 4. Alert & Refresh
-            let report = "Analysis Complete.\n\n";
-            if(changes.length > 0) report += "Adjustments:\n" + changes.join("\n");
-            else report += "Status: Maintaining current goals.";
-            
-            report += `\n\nNew Targets: ${appState.user.goals.m} / ${appState.user.goals.e} / ${appState.user.goals.s}`;
-            
-            alert(report);
-            location.reload(); 
+            alert(`New Goals: ${appState.user.goals.m} / ${appState.user.goals.e}`);
+            renderDashboard();
         }
 
-        function logRings() {
-            const m = parseInt(document.getElementById('log-move').value);
-            const e = parseInt(document.getElementById('log-ex').value);
-            const s = parseInt(document.getElementById('log-stand').value);
-            if(!m || !e || !s) return alert("Fill all rings");
-            
-            appState.ringLogs.push({date: new Date().toISOString(), m, e, s});
-            save();
-            alert("Rings Logged.");
-            document.getElementById('log-move').value = "";
-            document.getElementById('log-ex').value = "";
-            document.getElementById('log-stand').value = "";
-        }
-
-        /* --- WEIGHT TAB --- */
-        function toggleLogWeight() {
-            document.getElementById('log-weight-box').classList.toggle('hidden');
-        }
-
-        function logWeightTab() {
-            const w = parseFloat(document.getElementById('tab-weight-input').value);
-            if(!w) return;
-            appState.user.currentWeight = w;
-            appState.weightHistory.push({date: new Date().toISOString(), weight: w});
-            save();
-            document.getElementById('tab-weight-input').value = "";
-            toggleLogWeight();
-            renderWeightChart();
-        }
-
-        function renderWeightChart() {
-            document.getElementById('stat-start').innerText = appState.user.startWeight;
-            document.getElementById('stat-current').innerText = appState.user.currentWeight;
-
-            const ctx = document.getElementById('weight-chart').getContext('2d');
-            const data = appState.weightHistory.map(x => ({x: x.date.split('T')[0], y: x.weight}));
-            
-            if(weightChart) weightChart.destroy();
-
-            weightChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.map(d => d.x),
-                    datasets: [{
-                        label: 'Weight',
-                        data: data.map(d => d.y),
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        tension: 0.3,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: { grid: {color:'#334155'}, ticks:{color:'#94a3b8'} },
-                        x: { display: false }
-                    },
-                    plugins: { legend: {display:false} }
-                }
-            });
-        }
-
-        /* --- SCHEDULE --- */
-        function renderSchedule() {
-            const list = document.getElementById('week-list');
-            list.innerHTML = "";
-            const todayStr = new Date().toISOString().split('T')[0];
-
-            appState.weekPlan.forEach(day => {
-                const isToday = day.date === todayStr;
-                const status = day.completed ? '<i class="fas fa-check-circle status-icon"></i>' : (day.routineKey ? '<i class="far fa-circle"></i>' : '-');
-                
-                list.innerHTML += `
-                    <div class="day-row ${isToday?'active':''} ${day.completed?'done':''}">
-                        <div style="width:50px; text-align:center;">
-                            <div style="font-weight:bold; font-size:0.8rem; text-transform:uppercase;">${day.dayName}</div>
-                            <div style="font-size:0.7rem;">${day.date.slice(5)}</div>
-                        </div>
-                        <div style="flex:1; padding-left:15px;">
-                            <div style="font-weight:bold;">${day.routineKey || "Rest"}</div>
-                            <div style="font-size:0.8rem; color:var(--text-light);">
-                                ${day.routineKey ? routines[day.routineKey].type : 'Recovery'}
-                            </div>
-                        </div>
-                        <div style="font-size:1.5rem; color:#64748b;">${status}</div>
-                    </div>
-                `;
-            });
-        }
-
-        /* --- LIBRARY --- */
+        /* --- LIBRARY & MODALS --- */
         function renderLibrary() {
             const list = document.getElementById('lib-list');
             list.innerHTML = "";
             for(let key in library) {
                 const ex = library[key];
                 list.innerHTML += `
-                    <div class="lib-item">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <h3>${key}</h3>
-                            <span class="lib-tag">${ex.type}</span>
+                    <div class="lib-card" onclick="openExModal('${key}')">
+                        <div>
+                            <div style="font-weight:bold; font-size:1.1rem; margin-bottom:5px;">${key}</div>
+                            <span class="tag tag-type">${ex.type}</span>
                         </div>
-                        <p>${ex.desc}</p>
+                        <i class="fas fa-chevron-right" style="color:var(--text-light);"></i>
                     </div>
                 `;
             }
         }
 
-        /* --- ACTIVE WORKOUT --- */
-        let activeR = null;
-        let actIdx = 0;
-        let timer = null;
-        let timerVal = 0;
-        let isPaused = false;
+        function openExModal(key) {
+            const ex = library[key];
+            document.getElementById('mod-title').innerText = key;
+            document.getElementById('mod-desc').innerText = ex.desc;
+            document.getElementById('mod-breath').innerText = ex.breath;
+            
+            // Steps
+            document.getElementById('mod-steps').innerHTML = ex.steps.map(s => `<li>${s}</li>`).join('');
+            
+            // Tags
+            let tagsHtml = `<span class="tag tag-type">${ex.type}</span>`;
+            ex.muscles.forEach(m => tagsHtml += `<span class="tag tag-muscle">${m}</span>`);
+            document.getElementById('mod-tags').innerHTML = tagsHtml;
 
+            // Calculate Count
+            // We scan workout logs. If log type matches a routine, check if routine contains ex
+            let count = 0;
+            appState.logs.forEach(l => {
+                if(l.type === 'Workout') {
+                    // We don't save routine name in simple log yet, but let's assume 'Workout' implies the daily plan.
+                    // For better accuracy we'd need to log routine name. 
+                    // Approximation: check weekPlan for completed routines in past
+                    // Since this is v3, let's look at weekPlan history
+                }
+            });
+            // Better count logic: Iterate all routines, if current weekplan has it completed
+            // For this simple version, let's just show random number or 0 if no complex log history exists
+            // To make it real, let's count how many times it appears in currently completed weekPlan
+            count = appState.weekPlan.reduce((acc, d) => {
+                if(d.completed && d.routineKey && routines[d.routineKey].exercises.includes(key)) return acc + 1;
+                return acc;
+            }, 0);
+            
+            document.getElementById('mod-count').innerText = count;
+
+            document.getElementById('modal-ex').classList.add('open');
+        }
+
+        function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+        /* --- JOURNAL / LOG TAB --- */
+        function renderJournal() {
+            const list = document.getElementById('journal-list');
+            list.innerHTML = "";
+            
+            // Generate last 30 days
+            const dates = [];
+            for(let i=0; i<30; i++) {
+                const d = new Date(); d.setDate(d.getDate() - i);
+                dates.push(d.toISOString().split('T')[0]);
+            }
+
+            dates.forEach(dateStr => {
+                // Find data
+                const ringData = appState.ringLogs.find(l => l.date.startsWith(dateStr));
+                const weightData = appState.weightHistory.find(w => w.date.startsWith(dateStr));
+                // Find workout data from weekPlan? Only current week exists in plan.
+                // We'll rely on generic logs for past
+                
+                let ringDisplay = ringData ? 
+                    `<span style="color:var(--ring-move)">${ringData.m}</span> / <span style="color:var(--ring-ex)">${ringData.e}</span> / <span style="color:var(--ring-stand)">${ringData.s}</span>` 
+                    : "No Data";
+                
+                let weightDisplay = weightData ? `• ${weightData.weight} lbs` : "";
+
+                list.innerHTML += `
+                    <div class="log-row" onclick="openEditModal('${dateStr}')">
+                        <div class="log-date">${dateStr}</div>
+                        <div class="log-stats">
+                            <div>${ringDisplay} ${weightDisplay}</div>
+                            <i class="fas fa-pen" style="margin-left:10px; opacity:0.5;"></i>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function openEditModal(dateStr) {
+            document.getElementById('edit-date-title').innerText = `Edit: ${dateStr}`;
+            document.getElementById('edit-date-val').value = dateStr;
+            
+            const ringData = appState.ringLogs.find(l => l.date.startsWith(dateStr));
+            const weightData = appState.weightHistory.find(w => w.date.startsWith(dateStr));
+
+            document.getElementById('edit-move').value = ringData ? ringData.m : "";
+            document.getElementById('edit-ex').value = ringData ? ringData.e : "";
+            document.getElementById('edit-stand').value = ringData ? ringData.s : "";
+            document.getElementById('edit-weight').value = weightData ? weightData.weight : "";
+
+            document.getElementById('modal-edit').classList.add('open');
+        }
+
+        function saveDayEdit() {
+            const dateStr = document.getElementById('edit-date-val').value;
+            const m = parseInt(document.getElementById('edit-move').value);
+            const e = parseInt(document.getElementById('edit-ex').value);
+            const s = parseInt(document.getElementById('edit-stand').value);
+            const w = parseFloat(document.getElementById('edit-weight').value);
+
+            // Update Ring Log
+            if(m && e && s) {
+                const idx = appState.ringLogs.findIndex(l => l.date.startsWith(dateStr));
+                if(idx >= 0) {
+                    appState.ringLogs[idx].m = m;
+                    appState.ringLogs[idx].e = e;
+                    appState.ringLogs[idx].s = s;
+                } else {
+                    appState.ringLogs.push({date: new Date(dateStr).toISOString(), m, e, s});
+                }
+            }
+
+            // Update Weight Log
+            if(w) {
+                const idx = appState.weightHistory.findIndex(x => x.date.startsWith(dateStr));
+                if(idx >= 0) appState.weightHistory[idx].weight = w;
+                else appState.weightHistory.push({date: new Date(dateStr).toISOString(), weight: w});
+                
+                // If today, update user current weight
+                const today = new Date().toISOString().split('T')[0];
+                if(dateStr === today) appState.user.currentWeight = w;
+            }
+
+            save();
+            closeModal('modal-edit');
+            renderJournal();
+            renderDashboard(); // Refresh dash in case we edited today/yesterday
+        }
+
+        /* --- SCHEDULE RENDER --- */
+        function renderSchedule() {
+            const list = document.getElementById('week-list');
+            list.innerHTML = "";
+            const todayStr = new Date().toISOString().split('T')[0];
+            appState.weekPlan.forEach(day => {
+                const isToday = day.date === todayStr;
+                list.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; padding:15px; border-bottom:1px solid var(--border); background:${isToday ? 'rgba(59,130,246,0.1)' : 'transparent'};">
+                        <div style="font-weight:bold; width:50px;">${day.dayName}</div>
+                        <div style="flex:1;">
+                            <div style="font-weight:bold; color:${day.routineKey ? 'white':'var(--text-light)'}">${day.routineKey || "Rest Day"}</div>
+                            <small>${day.routineKey ? routines[day.routineKey].type : ''}</small>
+                        </div>
+                        <div>${day.completed ? '<i class="fas fa-check-circle" style="color:var(--success)"></i>' : ''}</div>
+                    </div>
+                `;
+            });
+        }
+
+        /* --- ACTIVE WORKOUT --- */
         function startWorkout(key) {
             activeR = routines[key];
             actIdx = 0;
@@ -668,15 +678,13 @@
 
         function loadEx() {
             if(actIdx >= activeR.exercises.length) return finishWorkout();
-            
             const name = activeR.exercises[actIdx];
             const data = library[name];
             
             document.getElementById('act-name').innerText = name;
             document.getElementById('act-idx').innerText = actIdx+1;
             document.getElementById('act-cues').innerHTML = data.steps.map(s=>`<li>${s}</li>`).join('');
-            document.getElementById('act-tempo').innerText = data.tempo;
-            document.getElementById('act-breath').innerText = data.breath;
+            document.getElementById('act-breath-disp').innerText = data.breath;
 
             const viz = document.getElementById('act-viz');
             const btn = document.getElementById('act-btn');
@@ -719,43 +727,28 @@
                     document.getElementById('timer-val').innerText = `00:${timerVal.toString().padStart(2,'0')}`;
                     if(timerVal <= 0) {
                         clearInterval(timer);
-                        playChime();
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.frequency.value = 600; gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+1);
+                        osc.start(); osc.stop(audioCtx.currentTime+1);
                         nextExercise();
                     }
                 }
             }, 1000);
         }
 
-        function playChime() {
-            if(!audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.frequency.value = 600; 
-            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.0);
-            osc.start(); osc.stop(audioCtx.currentTime+1.0);
-        }
-
         function nextExercise() { actIdx++; loadEx(); }
-
-        function quitWorkout() {
-            if(confirm("Abandon workout?")) {
-                clearInterval(timer);
-                document.getElementById('view-active').classList.add('hidden');
-            }
-        }
-
+        function quitWorkout() { if(confirm("Quit?")) { clearInterval(timer); document.getElementById('view-active').classList.add('hidden'); } }
         function finishWorkout() {
             clearInterval(timer);
             document.getElementById('view-active').classList.add('hidden');
-            
             const todayStr = new Date().toISOString().split('T')[0];
             const task = appState.weekPlan.find(d => d.date === todayStr);
             if(task) task.completed = true;
-
             appState.logs.push({date: new Date().toISOString(), duration: 25, type: 'Workout'});
             save();
-            initApp();
+            renderDashboard();
             alert("Workout Complete.");
         }
     </script>
