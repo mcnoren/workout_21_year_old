@@ -3,592 +3,761 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BaseLayer v5: Pro</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>PrimeFit v2</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         :root {
-            /* v5 Dark Theme: "Midnight & Neon" */
-            --bg: #0b1120; --card: #1e293b;
-            --text: #f1f5f9; --text-dim: #94a3b8;
-            --accent: #3b82f6; --accent-glow: rgba(59,130,246,0.3);
-            --success: #10b981; --danger: #ef4444; --warn: #f59e0b;
+            --bg: #0f172a; --card: #1e293b;
+            --text: #f8fafc; --text-light: #94a3b8;
+            --accent: #3b82f6; --accent-light: #60a5fa;
+            --success: #10b981; --danger: #ef4444;
             --border: #334155;
+            --ring-move: #fa114f; --ring-ex: #a2ff00; --ring-stand: #00f5ea;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 95px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 90px; }
         .container { max-width: 600px; margin: 0 auto; padding: 20px; }
         .hidden { display: none !important; }
 
         /* TYPOGRAPHY */
         h1 { font-size: 1.8rem; font-weight: 800; margin: 0 0 5px 0; letter-spacing: -0.5px; }
-        h2 { font-size: 1.2rem; font-weight: 700; margin: 20px 0 10px 0; }
-        p { line-height: 1.5; color: var(--text-dim); font-size: 0.95rem; margin-top: 5px; }
-        small { font-size: 0.8rem; color: var(--text-dim); }
+        h2 { font-size: 1.4rem; font-weight: 700; margin: 25px 0 15px 0; border-bottom: 2px solid var(--accent); display: inline-block; }
+        h3 { font-size: 1.1rem; font-weight: 600; color: var(--text-light); margin-bottom: 5px; }
+        p { color: var(--text-light); line-height: 1.6; margin-top: 0; }
 
-        /* UI COMPONENTS */
-        .card { background: var(--card); border-radius: 16px; padding: 20px; border: 1px solid var(--border); margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); }
+        /* CARDS & UI */
+        .card { background: var(--card); border-radius: 16px; padding: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); border: 1px solid var(--border); margin-bottom: 15px; }
+        .btn { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .btn-primary { background: var(--text); color: var(--bg); }
+        .btn-accent { background: var(--accent); color: white; }
+        .btn-outline { background: transparent; border: 2px solid var(--text); color: var(--text); }
+        .btn-ghost { background: rgba(255,255,255,0.1); color: var(--text); }
         
-        .btn { width: 100%; padding: 14px; border-radius: 10px; border: none; font-weight: 700; font-size: 1rem; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 10px; transition: 0.2s; }
-        .btn-primary { background: var(--accent); color: white; box-shadow: 0 0 15px var(--accent-glow); }
-        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
-        .btn:active { transform: scale(0.98); }
-
-        .std-input { width: 100%; padding: 14px; background: #0f172a; border: 1px solid var(--border); border-radius: 10px; font-size: 1rem; color: white; margin-bottom: 12px; }
-        .std-input:focus { outline: none; border-color: var(--accent); }
-
-        /* DAILY GOALS CHECKLIST */
-        .goal-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; background: rgba(255,255,255,0.02); border-radius: 12px; margin-bottom: 8px; border: 1px solid transparent; transition: 0.2s; }
-        .goal-row.done { border-color: var(--success); background: rgba(16, 185, 129, 0.05); }
-        .checkbox { width: 24px; height: 24px; border-radius: 6px; border: 2px solid var(--text-dim); display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .done .checkbox { background: var(--success); border-color: var(--success); color: white; }
-
-        /* LIBRARY EXPANSION */
-        .lib-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 15px; overflow: hidden; }
-        .lib-head { padding: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .lib-body { padding: 0 15px 15px 15px; display: none; border-top: 1px solid var(--border); padding-top: 15px; }
-        .lib-tag { font-size: 0.7rem; text-transform: uppercase; font-weight: bold; padding: 3px 8px; border-radius: 4px; background: rgba(255,255,255,0.1); margin-bottom: 5px; display: inline-block; }
-
-        /* FLOATING ACTION BUTTON (Log Anything) */
-        .fab { position: fixed; bottom: 100px; right: 20px; width: 55px; height: 55px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; box-shadow: 0 4px 15px var(--accent-glow); z-index: 90; cursor: pointer; }
+        /* DASHBOARD */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .score-circle { width: 120px; height: 120px; border-radius: 50%; border: 8px solid var(--accent); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px auto; }
+        .score-val { font-size: 2.5rem; font-weight: 900; color: var(--accent); line-height: 1; }
+        
+        /* WEEKLY SCHEDULE LIST */
+        .day-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border); opacity: 0.6; }
+        .day-row.active { opacity: 1; background: rgba(59, 130, 246, 0.1); padding: 15px; border-radius: 10px; border-bottom: none; margin: 5px 0; border: 1px solid var(--accent); }
+        .day-row.done { opacity: 1; }
+        .day-row.done .status-icon { color: var(--success); }
+        
+        /* LIBRARY */
+        .lib-item { margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+        .lib-tag { background: #334155; padding: 4px 10px; border-radius: 15px; font-size: 0.75rem; font-weight: bold; color:white;}
+        
+        /* ACTIVE WORKOUT */
+        #view-active { position: fixed; inset: 0; background: var(--bg); z-index: 100; overflow-y: auto; display: flex; flex-direction: column; }
+        .active-header { padding: 15px; background: var(--card); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        .timer-big { font-size: 5rem; font-weight: 900; text-align: center; color: var(--text); font-variant-numeric: tabular-nums; margin: 20px 0; }
+        
+        /* CUES & TEMPO */
+        .cue-box { background: rgba(245, 158, 11, 0.1); border-left: 5px solid #f59e0b; padding: 15px; margin: 20px 0; }
+        .cue-list { padding-left: 20px; margin: 0; line-height: 1.6; color: var(--text); }
+        
+        /* RINGS MINI */
+        .rings-mini { display:flex; gap:10px; margin-top:10px; }
+        .ring-pill { flex:1; padding:8px; border-radius:8px; font-weight:bold; text-align:center; color:black; font-size:0.8rem;}
 
         /* NAV */
-        .nav { position: fixed; bottom: 0; width: 100%; height: 85px; background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(10px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; z-index: 50; padding-bottom: 15px; }
-        .nav-btn { flex: 1; border: none; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-dim); font-size: 0.7rem; font-weight: 600; gap: 5px; }
+        .nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: var(--card); border-top: 1px solid var(--border); display: flex; justify-content: space-around; z-index: 50; }
+        .nav-btn { flex: 1; border: none; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-light); font-size: 0.75rem; font-weight: 600; }
         .nav-btn.active { color: var(--accent); }
-        .nav-btn i { font-size: 1.4rem; }
-
-        /* MODALS */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .modal-card { background: var(--card); width: 100%; max-width: 400px; border-radius: 16px; padding: 25px; border: 1px solid var(--border); position: relative; }
-        .close-btn { position: absolute; top: 15px; right: 15px; font-size: 1.2rem; color: var(--text-dim); cursor: pointer; }
-
-        /* CHART CONTAINER */
-        .chart-container { position: relative; height: 250px; width: 100%; margin-bottom: 20px; }
+        .nav-btn i { font-size: 1.5rem; margin-bottom: 4px; }
+        
+        .std-input { width: 100%; padding: 15px; border: 2px solid var(--border); background: var(--bg); color:white; border-radius: 10px; font-size: 1.1rem; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="view-onboarding" class="modal" style="z-index:200;">
-        <div class="modal-card">
-            <h1 style="color:var(--accent); text-align:center;">BaseLayer Pro</h1>
-            <p style="text-align:center; margin-bottom:20px;">Initialize your health profile.</p>
-            <label><b>First Name</b></label>
-            <input type="text" id="inp-name" class="std-input">
-            <label><b>Current Weight (lbs)</b></label>
-            <input type="number" id="inp-weight" class="std-input">
-            <button class="btn btn-primary" onclick="finishOnboarding()">Start Dashboard</button>
-        </div>
+    <div id="view-onboarding" class="container hidden" style="height:100vh; display:flex; flex-direction:column; justify-content:center;">
+        <h1 style="text-align:center; color:var(--accent);">PRIME<span style="color:white">FIT</span></h1>
+        <p style="text-align:center; margin-bottom:30px;">High-intensity programming & Data tracking.</p>
+        
+        <label><b>First Name</b></label>
+        <input type="text" id="inp-name" class="std-input" placeholder="Name">
+        
+        <label><b>Current Weight (lbs)</b></label>
+        <input type="number" id="inp-weight" class="std-input" placeholder="175">
+
+        <button class="btn btn-accent" onclick="finishOnboarding()">Generate Plan</button>
     </div>
 
-    <div id="view-dashboard" class="container hidden">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <div id="view-dashboard" class="container">
+        <div class="header">
             <div>
                 <h1 id="dash-greeting">Hello</h1>
-                <small id="dash-date">Date</small>
+                <p id="dash-date">Date</p>
             </div>
-            <div style="text-align:right;">
-                <div style="font-weight:bold; font-size:1.2rem; color:var(--accent);" id="dash-weight-display">-- lbs</div>
-                <small>Current</small>
-            </div>
+            <div style="background:var(--accent); color:white; width:45px; height:45px; border-radius:50%; display:flex; align-items:center; justify-content:center;"><i class="fas fa-bolt"></i></div>
         </div>
 
-        <div id="alert-box" class="card hidden" style="border-color:var(--warn); background:rgba(245, 158, 11, 0.05);">
-            <div style="display:flex; gap:10px; align-items:center; color:var(--warn);">
-                <i class="fas fa-exclamation-triangle"></i>
-                <b>Missing Data</b>
-            </div>
-            <p style="margin:5px 0 10px 0; font-size:0.9rem;">You haven't logged steps for <span id="alert-date">yesterday</span>.</p>
-            <button class="btn btn-outline" style="padding:8px; font-size:0.9rem;" onclick="openLogModal('Steps', true)">Log Steps Now</button>
-        </div>
-
-        <div class="card">
-            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-                <h2 style="margin:0;">Daily Goals</h2>
-                <small id="step-goal-display">Target: 7000 Steps</small>
+        <div id="sunday-card" class="card hidden" style="border: 2px solid var(--accent);">
+            <div style="text-align:center; padding-bottom:15px; border-bottom:1px solid var(--border); margin-bottom:15px;">
+                <h2 style="margin:0; border:none; color:var(--text);">Weekly Check-In</h2>
+                <p style="margin:0; font-size:0.9rem;">Review last week to unlock next week.</p>
             </div>
             
-            <div class="goal-row" id="row-steps" onclick="openLogModal('Steps')">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <div class="checkbox" id="chk-steps"><i class="fas fa-check"></i></div>
-                    <div>
-                        <div style="font-weight:600;">Apple Watch Steps</div>
-                        <small id="today-step-count">Tap to sync from Watch</small>
-                    </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
+                <div class="score-circle" style="width:100px; height:100px; margin:0 auto;">
+                    <span class="score-val" id="week-adherence" style="font-size:1.8rem">0%</span>
+                    <span style="font-size:0.6rem; font-weight:bold; text-transform:uppercase;">Adherence</span>
+                </div>
+                <div class="score-circle" style="width:100px; height:100px; margin:0 auto; border-color:var(--ring-move);">
+                    <span class="score-val" id="week-move-avg" style="font-size:1.8rem; color:var(--ring-move);">0</span>
+                    <span style="font-size:0.6rem; font-weight:bold; text-transform:uppercase;">Avg Move</span>
                 </div>
             </div>
 
-            <div class="goal-row" id="row-water" onclick="toggleHabit('water')">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <div class="checkbox" id="chk-water"><i class="fas fa-check"></i></div>
-                    <div>
-                        <div style="font-weight:600;">Hydration</div>
-                        <small>3 Liters</small>
-                    </div>
+            <div id="sunday-feedback" style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; margin-bottom:15px; font-size:0.9rem;">
                 </div>
-            </div>
 
-            <div class="goal-row" id="row-sleep" onclick="toggleHabit('sleep')">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <div class="checkbox" id="chk-sleep"><i class="fas fa-check"></i></div>
-                    <div>
-                        <div style="font-weight:600;">Recovery Sleep</div>
-                        <small>7+ Hours</small>
-                    </div>
+            <div id="sunday-input-group">
+                <div style="margin-bottom:15px;">
+                    <label style="font-size:0.8rem; font-weight:bold; color:var(--text-light);">LOG WEIGHT (LBS)</label>
+                    <input type="number" id="sunday-weight" class="std-input" placeholder="Current Weight">
                 </div>
+
+                <button class="btn btn-accent" onclick="processWeeklyAnalysis()">
+                    <i class="fas fa-magic"></i> Analyze & Optimize Next Week
+                </button>
+            </div>
+            
+            <div id="sunday-complete" class="hidden" style="text-align:center;">
+                <i class="fas fa-check-circle" style="color:var(--success); font-size:3rem; margin-bottom:10px;"></i>
+                <p>You're all set for Monday.</p>
             </div>
         </div>
 
-        <div id="today-routine-card"></div>
+        <div id="normal-dash">
+            <div class="card" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 style="margin:0; color:white;"><i class="fab fa-apple"></i> Watch Targets</h3>
+                    <small style="color:var(--text-light)">Daily Goals</small>
+                </div>
+                <div class="rings-mini">
+                    <div class="ring-pill" style="background:var(--ring-move);" id="goal-move">600</div>
+                    <div class="ring-pill" style="background:var(--ring-ex);" id="goal-ex">45</div>
+                    <div class="ring-pill" style="background:var(--ring-stand);" id="goal-stand">12</div>
+                </div>
+            </div>
+
+            <div class="card" id="today-card">
+                </div>
+
+            <div class="card">
+                <h3><i class="fas fa-history"></i> Log Yesterday's Rings</h3>
+                <div style="display:flex; gap:5px;">
+                    <input type="number" id="log-move" class="std-input" placeholder="Move" style="margin:0; flex:1; border-color:var(--ring-move);">
+                    <input type="number" id="log-ex" class="std-input" placeholder="Ex" style="margin:0; flex:1; border-color:var(--ring-ex);">
+                    <input type="number" id="log-stand" class="std-input" placeholder="Stand" style="margin:0; flex:1; border-color:var(--ring-stand);">
+                </div>
+                <button class="btn btn-ghost" style="margin-top:10px;" onclick="logRings()">Save Data</button>
+            </div>
+        </div>
     </div>
 
-    <div id="view-stats" class="container hidden">
-        <h1>Progress Hub</h1>
-        
-        <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h2 style="margin:0;">Weight Trend</h2>
-                <button class="btn btn-outline" style="width:auto; padding:5px 10px; font-size:0.8rem;" onclick="openLogModal('Weight')">+ Log</button>
-            </div>
-            <div class="chart-container">
-                <canvas id="weightChart"></canvas>
+    <div id="view-schedule" class="container hidden">
+        <div class="header">
+            <h1>Schedule</h1>
+        </div>
+        <div class="card" id="week-list"></div>
+    </div>
+
+    <div id="view-weight" class="container hidden">
+        <div class="header">
+            <h1>Progress</h1>
+            <button class="btn btn-primary" style="width:auto; padding:8px 15px; font-size:0.8rem;" onclick="toggleLogWeight()">
+                <i class="fas fa-plus"></i> Log
+            </button>
+        </div>
+
+        <div id="log-weight-box" class="card hidden">
+            <h3>Log Current Weight</h3>
+            <div style="display:flex; gap:10px;">
+                <input type="number" id="tab-weight-input" class="std-input" placeholder="lbs">
+                <button class="btn btn-accent" style="width:auto;" onclick="logWeightTab()">Save</button>
             </div>
         </div>
 
         <div class="card">
-            <h2 style="margin-top:0;">Step Consistency</h2>
-            <div class="chart-container">
-                <canvas id="stepChart"></canvas>
+            <canvas id="weight-chart"></canvas>
+        </div>
+        
+        <div class="card">
+            <h3>Stats</h3>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; text-align:center;">
+                <div>
+                    <div style="font-size:2rem; font-weight:800; color:var(--text);" id="stat-start">--</div>
+                    <small>Starting</small>
+                </div>
+                <div>
+                    <div style="font-size:2rem; font-weight:800; color:var(--accent);" id="stat-current">--</div>
+                    <small>Current</small>
+                </div>
             </div>
         </div>
     </div>
 
     <div id="view-library" class="container hidden">
-        <h1>Knowledge Base</h1>
-        <input type="text" class="std-input" placeholder="Search exercises..." onkeyup="renderLibrary(this.value)">
-        <div id="lib-list" style="padding-bottom:80px;"></div>
+        <h1>Exercise Guide</h1>
+        <div class="card" id="lib-list"></div>
     </div>
 
-    <div id="modal-log" class="modal hidden">
-        <div class="modal-card">
-            <i class="fas fa-times close-btn" onclick="closeModal()"></i>
-            <h2 id="log-title" style="margin-top:0;">Log Activity</h2>
-            
-            <label><b>Date</b></label>
-            <input type="date" id="log-date" class="std-input">
+    <div id="view-active" class="hidden">
+        <div class="active-header">
+            <button class="btn btn-ghost" style="width:auto; margin:0; padding:8px 15px; color:var(--danger);" onclick="quitWorkout()">Quit</button>
+            <strong id="act-routine">Routine</strong>
+            <div style="width:60px"></div>
+        </div>
+        <div style="padding:20px; padding-bottom:100px;">
+            <div style="text-align:center;">
+                <span class="lib-tag">Set <span id="act-idx">1</span></span>
+                <h1 id="act-name" style="margin-top:10px; font-size:2.2rem;">Name</h1>
+            </div>
 
-            <div id="log-inputs">
+            <div id="act-viz"></div>
+
+            <div class="cue-box">
+                <strong><i class="fas fa-crosshairs"></i> Form Cues</strong>
+                <ul id="act-cues" class="cue-list"></ul>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; text-align:center;">
+                    <small style="color:var(--text-light)">TEMPO</small>
+                    <div id="act-tempo" style="font-weight:bold;">2-0-2</div>
                 </div>
-            
-            <button class="btn btn-primary" onclick="saveLog()">Save Entry</button>
+                <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; text-align:center;">
+                    <small style="color:var(--text-light)">INTENSITY</small>
+                    <div id="act-breath" style="font-weight:bold;">RPE 8</div>
+                </div>
+            </div>
+
+            <button class="btn btn-success" id="act-btn" style="margin-top:20px; padding:20px; font-size:1.2rem;" onclick="nextExercise()">Start</button>
         </div>
     </div>
 
-    <div class="fab" onclick="openLogModal('Generic')"><i class="fas fa-plus"></i></div>
-
-    <div class="nav hidden" id="main-nav">
-        <button class="nav-btn active" onclick="switchTab('dashboard')"><i class="fas fa-home"></i>Today</button>
-        <button class="nav-btn" onclick="switchTab('stats')"><i class="fas fa-chart-line"></i>Stats</button>
+    <div class="nav">
+        <button class="nav-btn active" onclick="switchTab('dashboard')"><i class="fas fa-bolt"></i>Today</button>
+        <button class="nav-btn" onclick="switchTab('schedule')"><i class="fas fa-calendar-day"></i>Plan</button>
+        <button class="nav-btn" onclick="switchTab('weight')"><i class="fas fa-chart-line"></i>Stats</button>
         <button class="nav-btn" onclick="switchTab('library')"><i class="fas fa-dumbbell"></i>Guide</button>
     </div>
 
     <script>
-        /* --- 1. RICH DATA LIBRARY --- */
+        /* --- 1. DATA: Re-tooled for 21yo --- */
         const library = {
-            "Air Squats": { 
-                cat: "Legs", 
-                desc: "The fundamental human movement pattern for lower body strength.",
-                how: "1. Stand with feet shoulder-width, toes slightly turned out (15-30 degrees).\n2. Initiate movement by sending hips BACK, then bending knees.\n3. Keep chest proud and heels glued to the floor.\n4. Lower until hip crease is below knee (parallel).\n5. Drive up explosively.",
-                why: "Strengthens quads, glutes, and core. Improves hip mobility essential for aging gracefully." 
+            "Burpees": {
+                desc: "Full body metabolic conditioning. Chest to floor.",
+                steps: ["Drop to hands.", "Kick feet back.", "Chest to floor.", "Pop up.", "Jump high and clap."],
+                type: "reps", val: 15, tempo: "Explosive", breath: "RPE 9"
             },
-            "Push-ups": { 
-                cat: "Upper", 
-                desc: "A total body pushing movement that targets chest, shoulders, and core.",
-                how: "1. Start in a high plank, hands directly under shoulders.\n2. Squeeze glutes and bracing core (no sagging hips).\n3. Lower body until chest touches floor (or close to it).\n4. Elbows should point back at 45 degrees, not flared out.",
-                why: "Builds upper body pushing strength and teaches core rigidity." 
+            "Jump Squats": {
+                desc: "Explosive leg power development.",
+                steps: ["Squat depth below parallel.", "Explode up vertically.", "Land softly.", "Immediately recoil."],
+                type: "reps", val: 20, tempo: "Fast", breath: "RPE 8"
             },
-            "Glute Bridges": { 
-                cat: "Glutes", 
-                desc: "An isolation exercise to wake up the posterior chain.",
-                how: "1. Lie on back, knees bent, feet flat on floor.\n2. Press heels into the ground to lift hips towards ceiling.\n3. At the top, squeeze glutes hard for 2 seconds.\n4. Ensure movement comes from hips, not lower back hyperextension.",
-                why: "Counteracts the negative effects of sitting. Protects the lower back from injury." 
+            "Diamond Push-ups": {
+                desc: "Tricep and inner chest focus.",
+                steps: ["Hands form diamond shape.", "Elbows tucked to sides.", "Chest touches hands.", "Lock out at top."],
+                type: "reps", val: 15, tempo: "2-0-1", breath: "RPE 8"
             },
-            "Plank Shoulder Taps": { 
-                cat: "Core", 
-                desc: "Anti-rotation core stability exercise.",
-                how: "1. Assume a wide-stance push-up position.\n2. Without moving your hips, lift right hand to tap left shoulder.\n3. Place hand back down and switch.\n4. Imagine a glass of water on your back—don't spill it.",
-                why: "Trains the core to resist movement, which is its primary function in daily life." 
+            "Mountain Climbers": {
+                desc: "Core stability and cardio.",
+                steps: ["Plank position.", "Drive knee to chest.", "Switch rapidly.", "Keep hips low."],
+                type: "time", val: 45, tempo: "Max Speed", breath: "Rhythmic"
             },
-            "Walking": { 
-                cat: "Cardio", 
-                desc: "The most underrated fat loss tool.",
-                how: "Keep a brisk pace where you can talk but would rather not. Aim for continuous movement.",
-                why: "Increases NEAT (Non-Exercise Activity Thermogenesis). Low stress, high calorie burn over time." 
+            "Hollow Body Hold": {
+                desc: "Gymnastic core strength.",
+                steps: ["Lie on back.", "Lift legs and shoulders.", "Lower back glued to floor.", "Arms overhead."],
+                type: "time", val: 60, tempo: "Static", breath: "Braced"
+            },
+            "Walking Lunges": {
+                desc: "Unilateral leg strength.",
+                steps: ["Step forward.", "Back knee taps floor.", "Drive through front heel.", "Torso upright."],
+                type: "reps", val: 24, tempo: "Controlled", breath: "RPE 7"
+            },
+            "High Knees": {
+                desc: "Sprinting in place.",
+                steps: ["Knees to hip height.", "Pump arms.", "Light on toes.", "Maintain posture."],
+                type: "time", val: 60, tempo: "Sprint", breath: "RPE 9"
             }
+        };
+
+        const routines = {
+            'HIIT A': { type: 'Cardio', duration: 25, exercises: ["High Knees", "Burpees", "Mountain Climbers", "High Knees", "Burpees"] },
+            'Power B': { type: 'Strength', duration: 30, exercises: ["Jump Squats", "Diamond Push-ups", "Walking Lunges", "Diamond Push-ups", "Hollow Body Hold"] },
+            'Metcon C': { type: 'Hybrid', duration: 20, exercises: ["Burpees", "Jump Squats", "Mountain Climbers", "Walking Lunges", "Hollow Body Hold"] }
         };
 
         /* --- 2. STATE --- */
         let appState = {
-            user: { name: "", stepGoal: 7000 },
-            logs: [], // { date: "YYYY-MM-DD", type: "Weight"|"Steps"|"Workout", val: num, note: str }
-            habits: {}, // { "YYYY-MM-DD": { water: bool, sleep: bool } }
+            user: { name: "", startWeight: 0, currentWeight: 0, goals: {m:0, e:0, s:0} },
+            weekPlan: [],
+            logs: [], // {date, type, val}
+            ringLogs: [], // {date, m, e, s}
+            weightHistory: [], // {date, weight}
+            lastCheckIn: null, // DateString
             onboarded: false
         };
 
-        /* --- 3. INIT --- */
+        let audioCtx = null;
+        let weightChart = null;
+
+        /* --- 3. LOGIC --- */
         window.onload = () => {
-            const saved = localStorage.getItem('BaseLayer_v5');
+            const saved = localStorage.getItem('PrimeFit_v2');
             if(saved) appState = JSON.parse(saved);
 
-            if(!appState.onboarded) {
-                document.getElementById('view-onboarding').classList.remove('hidden');
-            } else {
+            if(!appState.onboarded) document.getElementById('view-onboarding').classList.remove('hidden');
+            else {
+                checkWeeklyPlan();
                 initApp();
             }
         };
 
-        function save() { localStorage.setItem('BaseLayer_v5', JSON.stringify(appState)); }
+        function save() { localStorage.setItem('PrimeFit_v2', JSON.stringify(appState)); }
 
         function finishOnboarding() {
             const n = document.getElementById('inp-name').value;
-            const w = document.getElementById('inp-weight').value;
-            if(!n || !w) return alert("Required");
+            const w = parseFloat(document.getElementById('inp-weight').value);
+            if(!n||!w) return alert("Required");
             
             appState.user.name = n;
-            appState.logs.push({ date: new Date().toISOString().split('T')[0], type: 'Weight', val: parseFloat(w) });
+            appState.user.startWeight = w;
+            appState.user.currentWeight = w;
+            appState.weightHistory.push({date: new Date().toISOString(), weight: w});
+
+            // Calculate Watch Goals
+            appState.user.goals = {
+                m: Math.round(w * 4.5),
+                e: 45,
+                s: 12
+            };
+
             appState.onboarded = true;
+            generateWeek();
             save();
             document.getElementById('view-onboarding').classList.add('hidden');
             initApp();
         }
 
+        function generateWeek() {
+            const plan = [];
+            const today = new Date();
+            const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+            
+            for(let i=0; i<7; i++) {
+                let d = new Date();
+                d.setDate(today.getDate() + i);
+                let dayNum = d.getDay();
+                let rKey = null;
+
+                // 21yo Split: Mon(HIIT), Tue(Power), Wed(Metcon), Thu(HIIT), Fri(Power), Sat(Metcon), Sun(Rest)
+                if(dayNum === 1 || dayNum === 4) rKey = 'HIIT A';
+                else if(dayNum === 2 || dayNum === 5) rKey = 'Power B';
+                else if(dayNum === 3 || dayNum === 6) rKey = 'Metcon C';
+
+                plan.push({
+                    date: d.toISOString().split('T')[0],
+                    dayName: days[dayNum],
+                    routineKey: rKey,
+                    completed: false
+                });
+            }
+            appState.weekPlan = plan;
+        }
+
+        function checkWeeklyPlan() {
+            if(!appState.weekPlan.length) generateWeek();
+            else {
+                const lastDate = new Date(appState.weekPlan[6].date);
+                const today = new Date();
+                // Simple date check
+                if(today > lastDate && today.toDateString() !== lastDate.toDateString()) {
+                   generateWeek(); 
+                }
+            }
+        }
+
         function initApp() {
-            document.getElementById('main-nav').classList.remove('hidden');
-            document.getElementById('view-dashboard').classList.remove('hidden');
-            document.getElementById('dash-greeting').innerText = `Hi, ${appState.user.name}`;
-            document.getElementById('dash-date').innerText = new Date().toLocaleDateString('en-US', { weekday:'long', month:'short', day:'numeric'});
+            document.getElementById('dash-greeting').innerText = `What's good, ${appState.user.name}`;
+            document.getElementById('dash-date').innerText = new Date().toDateString();
             
-            // Stats
-            const weights = appState.logs.filter(l => l.type === 'Weight').sort((a,b) => new Date(a.date) - new Date(b.date));
-            const curWeight = weights.length ? weights[weights.length-1].val : "--";
-            document.getElementById('dash-weight-display').innerText = curWeight + " lbs";
-            document.getElementById('step-goal-display').innerText = `Goal: ${appState.user.stepGoal}`;
+            // Set Goals UI
+            document.getElementById('goal-move').innerText = appState.user.goals.m;
+            document.getElementById('goal-ex').innerText = appState.user.goals.e;
+            document.getElementById('goal-stand').innerText = appState.user.goals.s;
 
-            checkMissingSteps();
-            renderHabits();
-            renderRoutine();
-            renderCharts();
+            renderDashboard();
+            renderSchedule();
             renderLibrary();
-        }
-
-        /* --- 4. LOGIC ENGINE --- */
-        function getToday() { return new Date().toISOString().split('T')[0]; }
-
-        function checkMissingSteps() {
-            const today = getToday();
-            const yest = new Date(); yest.setDate(yest.getDate() - 1);
-            const yestStr = yest.toISOString().split('T')[0];
-
-            // Do we have steps for yesterday?
-            const hasYest = appState.logs.find(l => l.type === 'Steps' && l.date === yestStr);
-            if(!hasYest) {
-                document.getElementById('alert-box').classList.remove('hidden');
-                document.getElementById('alert-date').innerText = yestStr;
-            } else {
-                document.getElementById('alert-box').classList.add('hidden');
-            }
-
-            // Do we have steps for today?
-            const hasToday = appState.logs.find(l => l.type === 'Steps' && l.date === today);
-            const stepRow = document.getElementById('row-steps');
-            const stepChk = document.getElementById('chk-steps');
-            
-            if(hasToday) {
-                stepRow.classList.add('done');
-                stepChk.innerHTML = '<i class="fas fa-check"></i>';
-                document.getElementById('today-step-count').innerText = `${hasToday.val} Steps Synced`;
-            } else {
-                stepRow.classList.remove('done');
-                stepChk.innerHTML = ''; // Empty box
-                document.getElementById('today-step-count').innerText = "Tap to sync from Watch";
-            }
-        }
-
-        /* --- 5. LOGGING SYSTEM --- */
-        let currentLogType = "";
-
-        function openLogModal(type, isUrgent = false) {
-            currentLogType = type;
-            document.getElementById('modal-log').classList.remove('hidden');
-            document.getElementById('log-title').innerText = type === 'Generic' ? 'Log Activity' : `Log ${type}`;
-            
-            // Date handling
-            const dInput = document.getElementById('log-date');
-            if(isUrgent) {
-                const yest = new Date(); yest.setDate(yest.getDate() - 1);
-                dInput.value = yest.toISOString().split('T')[0];
-            } else {
-                dInput.value = getToday();
-            }
-
-            const container = document.getElementById('log-inputs');
-            container.innerHTML = "";
-
-            if(type === 'Weight') {
-                container.innerHTML = `<label>Weight (lbs)</label><input type="number" id="inp-val" class="std-input" placeholder="e.g. 185">`;
-            } else if (type === 'Steps') {
-                container.innerHTML = `<label>Step Count (from Watch)</label><input type="number" id="inp-val" class="std-input" placeholder="e.g. 8432">`;
-            } else if (type === 'Generic') {
-                container.innerHTML = `
-                    <label>Activity Name</label>
-                    <select id="inp-name" class="std-input">
-                        <option>Workout (General)</option>
-                        <option>Running</option>
-                        <option>Tennis</option>
-                        <option>Biking</option>
-                        <option>Yoga</option>
-                    </select>
-                    <label>Duration (Mins) or Distance</label>
-                    <input type="number" id="inp-val" class="std-input">
-                `;
-            }
-        }
-
-        function closeModal() { document.getElementById('modal-log').classList.add('hidden'); }
-
-        function saveLog() {
-            const date = document.getElementById('log-date').value;
-            const valInput = document.getElementById('inp-val');
-            
-            if(!date || !valInput.value) return alert("Please complete all fields");
-
-            const val = parseFloat(valInput.value);
-            let logEntry = { date: date, val: val };
-
-            if(currentLogType === 'Weight') {
-                logEntry.type = 'Weight';
-            } else if(currentLogType === 'Steps') {
-                // Overwrite if exists for this date
-                appState.logs = appState.logs.filter(l => !(l.type === 'Steps' && l.date === date));
-                logEntry.type = 'Steps';
-            } else {
-                // Generic
-                logEntry.type = 'Activity';
-                logEntry.note = document.getElementById('inp-name').value;
-            }
-
-            appState.logs.push(logEntry);
-            save();
-            closeModal();
-            initApp();
-            
-            // Algorithm Trigger (Simulated)
-            // If Sunday, recalculate schedule based on new logs...
-            if(new Date(date).getDay() === 0) runSundayAlgorithm(); 
-        }
-
-        /* --- 6. SUNDAY ALGORITHM --- */
-        function runSundayAlgorithm() {
-            // Get last 7 days of logs
-            // Calculate step average
-            // If avg > goal, increase goal by 5%
-            // This runs silently in background
-            console.log("Algorithm: Analyzing compliance...");
-        }
-
-        /* --- 7. HABITS --- */
-        function toggleHabit(key) {
-            const today = getToday();
-            if(!appState.habits[today]) appState.habits[today] = {};
-            
-            appState.habits[today][key] = !appState.habits[today][key];
-            save();
-            renderHabits();
-        }
-
-        function renderHabits() {
-            const today = getToday();
-            const h = appState.habits[today] || {};
-            
-            // Water
-            const wRow = document.getElementById('row-water');
-            const wChk = document.getElementById('chk-water');
-            if(h.water) { wRow.classList.add('done'); wChk.innerHTML='<i class="fas fa-check"></i>'; }
-            else { wRow.classList.remove('done'); wChk.innerHTML=''; }
-
-            // Sleep
-            const sRow = document.getElementById('row-sleep');
-            const sChk = document.getElementById('chk-sleep');
-            if(h.sleep) { sRow.classList.add('done'); sChk.innerHTML='<i class="fas fa-check"></i>'; }
-            else { sRow.classList.remove('done'); sChk.innerHTML=''; }
-        }
-
-        /* --- 8. VISUALIZATION (CHARTS) --- */
-        let weightChartInst = null;
-        let stepChartInst = null;
-
-        function renderCharts() {
-            if(document.getElementById('view-stats').classList.contains('hidden')) return;
-
-            // Prepare Data
-            const sortedLogs = appState.logs.sort((a,b) => new Date(a.date) - new Date(b.date));
-            
-            // WEIGHT DATA
-            const wLogs = sortedLogs.filter(l => l.type === 'Weight');
-            const wLabels = wLogs.map(l => l.date.slice(5)); // MM-DD
-            const wData = wLogs.map(l => l.val);
-
-            const ctxW = document.getElementById('weightChart').getContext('2d');
-            if(weightChartInst) weightChartInst.destroy();
-            weightChartInst = new Chart(ctxW, {
-                type: 'line',
-                data: {
-                    labels: wLabels,
-                    datasets: [{
-                        label: 'Weight (lbs)',
-                        data: wData,
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { 
-                        y: { grid: { color: '#334155' } },
-                        x: { grid: { display: false } }
-                    }
-                }
-            });
-
-            // STEP DATA (Last 7 Days)
-            const stepData = [];
-            const stepLabels = [];
-            for(let i=6; i>=0; i--) {
-                const d = new Date(); d.setDate(d.getDate() - i);
-                const dStr = d.toISOString().split('T')[0];
-                const log = appState.logs.find(l => l.type === 'Steps' && l.date === dStr);
-                stepLabels.push(dStr.slice(5));
-                stepData.push(log ? log.val : 0);
-            }
-
-            const ctxS = document.getElementById('stepChart').getContext('2d');
-            if(stepChartInst) stepChartInst.destroy();
-            stepChartInst = new Chart(ctxS, {
-                type: 'bar',
-                data: {
-                    labels: stepLabels,
-                    datasets: [{
-                        label: 'Steps',
-                        data: stepData,
-                        backgroundColor: stepData.map(v => v >= appState.user.stepGoal ? '#10b981' : '#ef4444'),
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { 
-                        y: { grid: { color: '#334155' }, beginAtZero: true },
-                        x: { grid: { display: false } }
-                    }
-                }
-            });
-        }
-
-        /* --- 9. ROUTINE RENDERER --- */
-        function renderRoutine() {
-            // Simple logic: Mon/Thu Strength, Tue/Fri Cardio, Wed/Sat Mobility
-            const dayNum = new Date().getDay();
-            let routineName = "Active Recovery";
-            let routineDesc = "Focus on 7k steps and stretching.";
-            
-            if(dayNum === 1 || dayNum === 4) { routineName = "Strength A"; routineDesc = "Full Body Foundation"; }
-            if(dayNum === 2 || dayNum === 5) { routineName = "Cardio Flow"; routineDesc = "Heart Rate & Sweat"; }
-            if(dayNum === 3 || dayNum === 6) { routineName = "Mobility"; routineDesc = "Joint Health"; }
-
-            const card = document.getElementById('today-routine-card');
-            
-            // Check if logged
-            const today = getToday();
-            const isDone = appState.logs.find(l => l.type === 'Activity' && l.date === today && l.note.includes('Workout'));
-
-            if(isDone) {
-                card.innerHTML = `
-                    <div class="card" style="border-color:var(--success); background:rgba(16,185,129,0.1); text-align:center;">
-                        <h2 style="color:var(--success); margin-top:0;"><i class="fas fa-check-circle"></i> Workout Complete</h2>
-                        <p>Great job today.</p>
-                    </div>
-                `;
-            } else {
-                card.innerHTML = `
-                    <div class="card">
-                        <div style="display:flex; justify-content:space-between;">
-                            <span class="lib-tag" style="background:var(--accent); color:white;">Today's Plan</span>
-                        </div>
-                        <h2 style="margin-top:10px;">${routineName}</h2>
-                        <p>${routineDesc}</p>
-                        <button class="btn btn-primary" onclick="logWorkout('${routineName}')">Log Complete</button>
-                    </div>
-                `;
-            }
-        }
-
-        function logWorkout(name) {
-            appState.logs.push({ date: getToday(), type: 'Activity', note: name + " Workout", val: 30 });
-            save();
-            initApp();
-        }
-
-        /* --- 10. LIBRARY RENDERER --- */
-        function renderLibrary(filter = "") {
-            const list = document.getElementById('lib-list');
-            list.innerHTML = "";
-            
-            for(let key in library) {
-                if(filter && !key.toLowerCase().includes(filter.toLowerCase())) continue;
-                
-                const item = library[key];
-                list.innerHTML += `
-                    <div class="lib-item">
-                        <div class="lib-head" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display==='block'?'none':'block'">
-                            <div>
-                                <span class="lib-tag">${item.cat}</span>
-                                <div style="font-weight:bold; font-size:1.1rem;">${key}</div>
-                            </div>
-                            <i class="fas fa-chevron-down" style="color:var(--text-dim)"></i>
-                        </div>
-                        <div class="lib-body">
-                            <p><i>${item.desc}</i></p>
-                            <div style="margin-top:10px; color:var(--accent); font-weight:bold;">The How</div>
-                            <p style="white-space:pre-line;">${item.how}</p>
-                            <div style="margin-top:10px; color:var(--success); font-weight:bold;">The Why</div>
-                            <p>${item.why}</p>
-                        </div>
-                    </div>
-                `;
-            }
+            renderWeightChart();
         }
 
         function switchTab(t) {
-            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
+            document.querySelectorAll('.container').forEach(c=>c.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
             document.getElementById(`view-${t}`).classList.remove('hidden');
             
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            if(t==='dashboard') document.querySelectorAll('.nav-btn')[0].classList.add('active');
-            if(t==='stats') {
-                document.querySelectorAll('.nav-btn')[1].classList.add('active');
-                renderCharts(); // Re-render charts when tab opens
-            }
-            if(t==='library') document.querySelectorAll('.nav-btn')[2].classList.add('active');
+            const map = {'dashboard':0, 'schedule':1, 'weight':2, 'library':3};
+            document.querySelectorAll('.nav-btn')[map[t]].classList.add('active');
+            
+            if(t === 'weight') renderWeightChart();
         }
 
+        /* --- DASHBOARD --- */
+        function renderDashboard() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            const dayNum = new Date().getDay();
+            const checkedInToday = appState.lastCheckIn === todayStr;
+
+            // Sunday Check-In Logic
+            if(dayNum === 0) {
+                document.getElementById('normal-dash').classList.add('hidden');
+                document.getElementById('sunday-card').classList.remove('hidden');
+                
+                if(checkedInToday) {
+                    // Show "Complete" state
+                    document.getElementById('sunday-input-group').classList.add('hidden');
+                    document.getElementById('sunday-complete').classList.remove('hidden');
+                    document.getElementById('sunday-feedback').innerHTML = "Plan generated. Rest up.";
+                } else {
+                    // Show "Needs Input" state
+                    document.getElementById('sunday-input-group').classList.remove('hidden');
+                    document.getElementById('sunday-complete').classList.add('hidden');
+                    prepareSundayReport();
+                }
+                
+            } else {
+                document.getElementById('normal-dash').classList.remove('hidden');
+                document.getElementById('sunday-card').classList.add('hidden');
+
+                const task = appState.weekPlan.find(d => d.date === todayStr);
+                const container = document.getElementById('today-card');
+                
+                if(!task || !task.routineKey) {
+                    container.innerHTML = `<h2>Active Recovery</h2><p>Hit your Move goal, but no workout required.</p>`;
+                } else if(task.completed) {
+                    container.innerHTML = `
+                        <div style="text-align:center; padding:20px;">
+                            <i class="fas fa-check-circle" style="font-size:4rem; color:var(--success);"></i>
+                            <h2>Crushed It.</h2>
+                        </div>`;
+                } else {
+                    const r = routines[task.routineKey];
+                    container.innerHTML = `
+                        <h3 style="text-transform:uppercase; font-size:0.8rem;">MISSION</h3>
+                        <h2 style="margin-top:5px; border:none;">${task.routineKey}</h2>
+                        <p>${r.exercises.length} Exercises • ${r.duration} Mins • High Intensity</p>
+                        <button class="btn btn-accent" onclick="startWorkout('${task.routineKey}')">Start Workout</button>
+                    `;
+                }
+            }
+        }
+
+        /* --- SUNDAY ALGORITHM --- */
+        function prepareSundayReport() {
+            // 1. Calc Adherence (Plan currently in state)
+            const scheduled = appState.weekPlan.filter(d => d.routineKey).length;
+            const done = appState.weekPlan.filter(d => d.completed).length;
+            const score = scheduled === 0 ? 100 : Math.round((done/scheduled)*100);
+            
+            document.getElementById('week-adherence').innerText = score + "%";
+            document.getElementById('week-adherence').dataset.val = score;
+
+            // 2. Calc Ring Avgs (Last 7 Logs)
+            const recentRings = appState.ringLogs.slice(-7);
+            let avgMove = 0;
+            if(recentRings.length > 0) {
+                avgMove = Math.round(recentRings.reduce((a,b)=>a+b.m,0) / recentRings.length);
+            }
+            document.getElementById('week-move-avg').innerText = avgMove;
+            document.getElementById('week-move-avg').dataset.val = avgMove;
+
+            // 3. Static Feedback
+            let msg = "";
+            if(score >= 80 && avgMove > appState.user.goals.m) {
+                msg = `<span style="color:var(--success)"><i class="fas fa-arrow-trend-up"></i> <b>Strong.</b></span> High adherence & activity.`;
+            } else if(score < 50) {
+                msg = `<span style="color:var(--danger)"><i class="fas fa-battery-quarter"></i> <b>Reset.</b></span> Low consistency detected.`;
+            } else {
+                msg = `<b>Stable.</b> Good maintenance work.`;
+            }
+            document.getElementById('sunday-feedback').innerHTML = msg;
+        }
+
+        function processWeeklyAnalysis() {
+            const wInput = document.getElementById('sunday-weight');
+            if(!wInput.value) return alert("Log weight to complete check-in.");
+            
+            // 1. Save Weight
+            const newWeight = parseFloat(wInput.value);
+            appState.user.currentWeight = newWeight;
+            appState.weightHistory.push({date: new Date().toISOString(), weight: newWeight});
+
+            // 2. Optimization Algorithm
+            const score = parseInt(document.getElementById('week-adherence').dataset.val);
+            const avgMove = parseInt(document.getElementById('week-move-avg').dataset.val);
+            const oldGoals = {...appState.user.goals};
+            let changes = [];
+
+            // Move Ring Logic
+            if(score >= 80 && avgMove > oldGoals.m) {
+                appState.user.goals.m += 50;
+                changes.push("Move Goal: +50 (High Performance)");
+            } else if (score < 40) {
+                appState.user.goals.m = Math.max(400, oldGoals.m - 50); 
+                changes.push("Move Goal: -50 (Recovery Mode)");
+            }
+
+            // Exercise Ring Logic
+            if(score >= 90) {
+                appState.user.goals.e += 5;
+                changes.push("Exercise Goal: +5m");
+            } else if (score < 50) {
+                appState.user.goals.e = Math.max(30, oldGoals.e - 5);
+                changes.push("Exercise Goal: -5m");
+            }
+
+            // 3. Save & Regenerate
+            appState.lastCheckIn = new Date().toISOString().split('T')[0];
+            generateWeek(); 
+            save();
+
+            // 4. Alert & Refresh
+            let report = "Analysis Complete.\n\n";
+            if(changes.length > 0) report += "Adjustments:\n" + changes.join("\n");
+            else report += "Status: Maintaining current goals.";
+            
+            report += `\n\nNew Targets: ${appState.user.goals.m} / ${appState.user.goals.e} / ${appState.user.goals.s}`;
+            
+            alert(report);
+            location.reload(); 
+        }
+
+        function logRings() {
+            const m = parseInt(document.getElementById('log-move').value);
+            const e = parseInt(document.getElementById('log-ex').value);
+            const s = parseInt(document.getElementById('log-stand').value);
+            if(!m || !e || !s) return alert("Fill all rings");
+            
+            appState.ringLogs.push({date: new Date().toISOString(), m, e, s});
+            save();
+            alert("Rings Logged.");
+            document.getElementById('log-move').value = "";
+            document.getElementById('log-ex').value = "";
+            document.getElementById('log-stand').value = "";
+        }
+
+        /* --- WEIGHT TAB --- */
+        function toggleLogWeight() {
+            document.getElementById('log-weight-box').classList.toggle('hidden');
+        }
+
+        function logWeightTab() {
+            const w = parseFloat(document.getElementById('tab-weight-input').value);
+            if(!w) return;
+            appState.user.currentWeight = w;
+            appState.weightHistory.push({date: new Date().toISOString(), weight: w});
+            save();
+            document.getElementById('tab-weight-input').value = "";
+            toggleLogWeight();
+            renderWeightChart();
+        }
+
+        function renderWeightChart() {
+            document.getElementById('stat-start').innerText = appState.user.startWeight;
+            document.getElementById('stat-current').innerText = appState.user.currentWeight;
+
+            const ctx = document.getElementById('weight-chart').getContext('2d');
+            const data = appState.weightHistory.map(x => ({x: x.date.split('T')[0], y: x.weight}));
+            
+            if(weightChart) weightChart.destroy();
+
+            weightChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => d.x),
+                    datasets: [{
+                        label: 'Weight',
+                        data: data.map(d => d.y),
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { grid: {color:'#334155'}, ticks:{color:'#94a3b8'} },
+                        x: { display: false }
+                    },
+                    plugins: { legend: {display:false} }
+                }
+            });
+        }
+
+        /* --- SCHEDULE --- */
+        function renderSchedule() {
+            const list = document.getElementById('week-list');
+            list.innerHTML = "";
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            appState.weekPlan.forEach(day => {
+                const isToday = day.date === todayStr;
+                const status = day.completed ? '<i class="fas fa-check-circle status-icon"></i>' : (day.routineKey ? '<i class="far fa-circle"></i>' : '-');
+                
+                list.innerHTML += `
+                    <div class="day-row ${isToday?'active':''} ${day.completed?'done':''}">
+                        <div style="width:50px; text-align:center;">
+                            <div style="font-weight:bold; font-size:0.8rem; text-transform:uppercase;">${day.dayName}</div>
+                            <div style="font-size:0.7rem;">${day.date.slice(5)}</div>
+                        </div>
+                        <div style="flex:1; padding-left:15px;">
+                            <div style="font-weight:bold;">${day.routineKey || "Rest"}</div>
+                            <div style="font-size:0.8rem; color:var(--text-light);">
+                                ${day.routineKey ? routines[day.routineKey].type : 'Recovery'}
+                            </div>
+                        </div>
+                        <div style="font-size:1.5rem; color:#64748b;">${status}</div>
+                    </div>
+                `;
+            });
+        }
+
+        /* --- LIBRARY --- */
+        function renderLibrary() {
+            const list = document.getElementById('lib-list');
+            list.innerHTML = "";
+            for(let key in library) {
+                const ex = library[key];
+                list.innerHTML += `
+                    <div class="lib-item">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <h3>${key}</h3>
+                            <span class="lib-tag">${ex.type}</span>
+                        </div>
+                        <p>${ex.desc}</p>
+                    </div>
+                `;
+            }
+        }
+
+        /* --- ACTIVE WORKOUT --- */
+        let activeR = null;
+        let actIdx = 0;
+        let timer = null;
+        let timerVal = 0;
+        let isPaused = false;
+
+        function startWorkout(key) {
+            activeR = routines[key];
+            actIdx = 0;
+            document.getElementById('view-active').classList.remove('hidden');
+            document.getElementById('act-routine').innerText = key;
+            loadEx();
+        }
+
+        function loadEx() {
+            if(actIdx >= activeR.exercises.length) return finishWorkout();
+            
+            const name = activeR.exercises[actIdx];
+            const data = library[name];
+            
+            document.getElementById('act-name').innerText = name;
+            document.getElementById('act-idx').innerText = actIdx+1;
+            document.getElementById('act-cues').innerHTML = data.steps.map(s=>`<li>${s}</li>`).join('');
+            document.getElementById('act-tempo').innerText = data.tempo;
+            document.getElementById('act-breath').innerText = data.breath;
+
+            const viz = document.getElementById('act-viz');
+            const btn = document.getElementById('act-btn');
+            clearInterval(timer);
+
+            if(data.type === 'reps') {
+                viz.innerHTML = `<div class="timer-big" style="color:var(--accent)">${data.val}<span style="font-size:2rem;color:var(--text-light)">reps</span></div>`;
+                btn.innerText = "Complete Set";
+                btn.className = "btn btn-success";
+                btn.onclick = nextExercise;
+            } else {
+                timerVal = data.val;
+                isPaused = false;
+                viz.innerHTML = `<div class="timer-big" id="timer-val">00:${timerVal}</div>`;
+                btn.innerText = "Start Timer";
+                btn.className = "btn btn-primary";
+                btn.onclick = toggleTimer;
+            }
+        }
+
+        function toggleTimer() {
+            const btn = document.getElementById('act-btn');
+            if(btn.innerText === "Start Timer") {
+                btn.innerText = "Pause";
+                if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+                startLoop();
+            } else if(btn.innerText === "Pause") {
+                isPaused = true;
+                btn.innerText = "Resume";
+            } else {
+                isPaused = false;
+                btn.innerText = "Pause";
+            }
+        }
+
+        function startLoop() {
+            timer = setInterval(() => {
+                if(!isPaused) {
+                    timerVal--;
+                    document.getElementById('timer-val').innerText = `00:${timerVal.toString().padStart(2,'0')}`;
+                    if(timerVal <= 0) {
+                        clearInterval(timer);
+                        playChime();
+                        nextExercise();
+                    }
+                }
+            }, 1000);
+        }
+
+        function playChime() {
+            if(!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.value = 600; 
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.0);
+            osc.start(); osc.stop(audioCtx.currentTime+1.0);
+        }
+
+        function nextExercise() { actIdx++; loadEx(); }
+
+        function quitWorkout() {
+            if(confirm("Abandon workout?")) {
+                clearInterval(timer);
+                document.getElementById('view-active').classList.add('hidden');
+            }
+        }
+
+        function finishWorkout() {
+            clearInterval(timer);
+            document.getElementById('view-active').classList.add('hidden');
+            
+            const todayStr = new Date().toISOString().split('T')[0];
+            const task = appState.weekPlan.find(d => d.date === todayStr);
+            if(task) task.completed = true;
+
+            appState.logs.push({date: new Date().toISOString(), duration: 25, type: 'Workout'});
+            save();
+            initApp();
+            alert("Workout Complete.");
+        }
     </script>
 </body>
 </html>
